@@ -1,0 +1,15 @@
+name: The Otters
+slug: the-otters
+members:
+  - id: rich
+    name: Rich Hennessy 
+    instrument: guitar
+  - id: billy
+    name: Billy Anderson
+    instrument: keyboard
+  - id: ken
+    name: Ken Tracy
+    instrument: guitar
+  - id: cory
+    name: Cory Veilleux
+    instrument: bass

@@ -1,0 +1,490 @@
+songs:
+- title: Crossroads
+  original_artist: Cream
+  key: C
+  lead_singer: ken
+  duration_seconds: 259
+  active: true
+  reference_artists: []
+  writers:
+  - Robert Johnson
+  verse_hints: []
+- title: Dead Flowers
+  original_artist: The Rolling Stones
+  key: D
+  lead_singer: ken
+  duration_seconds: 245
+  active: true
+  reference_artists: []
+  writers:
+  - Mick Jagger
+  - Keith Richards
+  verse_hints: []
+- title: I Shall Be Released
+  original_artist: Joe Cocker
+  key: E
+  lead_singer: rich
+  duration_seconds: 275
+  active: true
+  reference_artists: []
+  writers:
+  - Bob Dylan
+  verse_hints: []
+- title: Moondance
+  original_artist: Van Morrison
+  key: Am
+  lead_singer: rich
+  duration_seconds: 274
+  active: true
+  reference_artists: []
+  writers:
+  - Van Morrison
+  verse_hints: []
+- title: Willin'
+  original_artist: Little Feat
+  key: G
+  lead_singer: rich
+  duration_seconds: 174
+  active: true
+  reference_artists: []
+  writers:
+  - Lowell George
+  verse_hints: []
+- title: Gimme Some Lovin'
+  original_artist: The Spencer Davis Group
+  key: C
+  lead_singer: billy
+  duration_seconds: 177
+  active: true
+  reference_artists: []
+  writers:
+  - Spencer Davis
+  - Muff Winwood
+  - Steve Winwood
+  verse_hints: []
+- title: Stormy Monday
+  original_artist: The Allman Brothers Band
+  key: G
+  lead_singer: ken
+  duration_seconds: 639
+  active: true
+  reference_artists: []
+  writers:
+  - T. Bone Walker
+  verse_hints: []
+- title: Sea Cruise
+  original_artist: Jerry Lee Lewis
+  key: A
+  lead_singer: rich
+  duration_seconds: 232
+  active: true
+  reference_artists: []
+  writers:
+  - Paul Hurriah Smith
+  verse_hints: []
+- title: Wagon Wheel
+  original_artist: Darius Rucker
+  key: G
+  lead_singer: rich
+  duration_seconds: 298
+  active: true
+  reference_artists: []
+  writers:
+  - Bob Dylan
+  - Ketch Secor
+  verse_hints: []
+- title: Do It Again
+  original_artist: Steely Dan
+  key: Gm
+  lead_singer: ken
+  duration_seconds: 357
+  active: true
+  reference_artists: []
+  writers:
+  - Donald Fagen
+  - Walter Becker
+  verse_hints: []
+- title: You Never Even Called Me by My Name
+  original_artist: David Allan Coe
+  key: C
+  lead_singer: billy
+  duration_seconds: 316
+  active: true
+  reference_artists: []
+  writers:
+  - Shirley Goodman
+  verse_hints: []
+- title: Can't You See
+  original_artist: The Marshall Tucker Band
+  key: D (mixolydian)
+  lead_singer: ken
+  duration_seconds: 365
+  active: true
+  reference_artists: []
+  writers:
+  - Toy Caldwell
+  verse_hints: []
+- title: Don't Be Cruel
+  original_artist: Elvis Presley
+  key: D
+  lead_singer: rich
+  duration_seconds: 124
+  active: true
+  reference_artists: []
+  writers:
+  - Elvis Presley
+  - Otis Blackwell
+  verse_hints: []
+- title: You Can't Always Get What You Want
+  original_artist: The Rolling Stones
+  key: C
+  lead_singer: ken
+  duration_seconds: 448
+  active: true
+  reference_artists: []
+  writers:
+  - Mick Jagger
+  - Keith Richards
+  verse_hints: []
+- title: Let It Be
+  original_artist: The Beatles
+  key: C
+  lead_singer: ken
+  duration_seconds: 243
+  active: true
+  reference_artists: []
+  writers:
+  - John Lennon
+  - Paul McCartney
+  verse_hints: []
+- title: Unchain My Heart
+  original_artist: Johnny Winter
+  key: Em
+  lead_singer: rich
+  duration_seconds: 195
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+- title: My Back Pages
+  original_artist: The Byrds
+  key: C
+  lead_singer: rich
+  duration_seconds: 187
+  active: true
+  reference_artists: []
+  writers:
+  - Bob Dylan
+  verse_hints: []
+- title: Garden Party
+  original_artist: Ricky Nelson
+  key: D
+  lead_singer: rich
+  duration_seconds: 229
+  active: true
+  reference_artists: []
+  writers:
+  - Ricky Nelson
+  verse_hints: []
+- title: Ophelia
+  original_artist: The Band
+  key: G
+  lead_singer: rich
+  duration_seconds: 209
+  active: true
+  reference_artists: []
+  writers:
+  - Robbie Robertson
+  verse_hints: []
+- title: On the Road Again
+  original_artist: Willie Nelson
+  key: E
+  lead_singer: rich
+  duration_seconds: 152
+  active: true
+  reference_artists: []
+  writers:
+  - Willie Nelson
+  verse_hints: []
+- title: Ol' '55
+  original_artist: Tom Waits
+  key: G
+  lead_singer: rich
+  duration_seconds: 236
+  active: true
+  reference_artists: []
+  writers:
+  - Tom Waits
+  verse_hints: []
+- title: Ripple
+  original_artist: Grateful Dead
+  key: G
+  lead_singer: rich
+  duration_seconds: 248
+  active: true
+  reference_artists: []
+  writers:
+  - Jerry Garcia
+  - Robert Hunter
+  verse_hints: []
+- title: Not Fade Away
+  original_artist: Grateful Dead
+  key: E
+  lead_singer: ken
+  duration_seconds: 1175
+  active: true
+  reference_artists: []
+  writers:
+  - Charles Hardin
+  - Norman Petty
+  verse_hints: []
+- title: Tutti Frutti
+  original_artist: Little Richard
+  key: A
+  lead_singer: billy
+  duration_seconds: 144
+  active: true
+  reference_artists: []
+  writers:
+  - Dorothy La Bostrie
+  - Richard Penniman
+  verse_hints: []
+- title: Route 66
+  original_artist: Chuck Berry
+  key: A
+  lead_singer: rich
+  duration_seconds: 171
+  active: true
+  reference_artists: []
+  writers:
+  - Bobby Troup
+  verse_hints: []
+- title: Ain't No Sunshine
+  original_artist: Bill Withers
+  key: Am
+  lead_singer: billy
+  duration_seconds: 126
+  active: true
+  reference_artists: []
+  writers:
+  - Bill Withers
+  verse_hints: []
+- title: Cherry Bomb
+  original_artist: John Cougar Mellencamp
+  key: G
+  lead_singer: rich
+  duration_seconds: 287
+  active: true
+  reference_artists: []
+  writers:
+  - John Mellencamp
+  verse_hints: []
+- title: You Ain't Going Nowhere
+  original_artist: The Byrds
+  key: G
+  lead_singer: rich
+  duration_seconds: 155
+  active: true
+  reference_artists: []
+  writers:
+  - Bob Dylan
+  verse_hints: []
+- title: Folsom Prison Blues
+  original_artist: Johnny Cash
+  key: E
+  lead_singer: ken
+  duration_seconds: 162
+  active: true
+  reference_artists: []
+  writers:
+  - Johnny Cash
+  verse_hints: []
+- title: Listen to the Music
+  original_artist: The Doobie Brothers
+  key: E
+  lead_singer: ken
+  duration_seconds: 288
+  active: true
+  reference_artists: []
+  writers:
+  - Tom Johnston
+  verse_hints: []
+- title: Stand By Me
+  original_artist: Otis Redding
+  key: D
+  lead_singer: rich
+  duration_seconds: 173
+  active: true
+  reference_artists: []
+  writers:
+  - Ben E. King
+  - JERRY LEIBER
+  - MIKE STOLLER
+  verse_hints: []
+- title: Sympathy For The Devil
+  original_artist: The Rolling Stones
+  key: E (mixolydian)
+  lead_singer: ken
+  duration_seconds: 378
+  active: true
+  reference_artists: []
+  writers:
+  - Mick Jagger
+  - Keith Richards
+  verse_hints: []
+- title: Up On Cripple Creek
+  original_artist: The Band
+  key: A
+  lead_singer: rich
+  duration_seconds: 270
+  active: true
+  reference_artists: []
+  writers:
+  - Robbie Robertson
+  verse_hints: []
+- title: Lodi
+  original_artist: Creedence Clearwater Revival
+  key: D
+  lead_singer: ken
+  duration_seconds: 192
+  active: true
+  reference_artists: []
+  writers:
+  - John Fogerty
+  verse_hints: []
+- title: Honey Don't
+  original_artist: The Beatles
+  key: E
+  lead_singer: rich
+  duration_seconds: 177
+  active: true
+  reference_artists: []
+  writers:
+  - Carl Perkins
+  verse_hints: []
+- title: Squeeze Box
+  original_artist: The Who
+  key: G
+  lead_singer: ken
+  duration_seconds: 161
+  active: true
+  reference_artists: []
+  writers:
+  - Pete Townshend
+  verse_hints: []
+- title: Bad Moon Rising
+  original_artist: Creedence Clearwater Revival
+  key: D
+  lead_singer: ken
+  duration_seconds: 140
+  active: true
+  reference_artists: []
+  writers:
+  - John Fogerty
+  verse_hints: []
+- title: Boppin' The Blues
+  original_artist: Carl Perkins
+  key: A
+  lead_singer: rich
+  duration_seconds: 167
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+- title: The Weight
+  original_artist: The Band
+  key: G
+  lead_singer: rich
+  duration_seconds: 274
+  active: true
+  reference_artists: []
+  writers:
+  - Robbie Robertson
+  verse_hints: []
+- title: Your Song
+  original_artist: Elton John
+  key: D
+  lead_singer: rich
+  duration_seconds: 244
+  active: true
+  reference_artists: []
+  writers:
+  - Elton John
+  - Bernie Taupin
+  verse_hints: []
+- title: Lean On Me
+  original_artist: Bill Withers
+  key: C
+  lead_singer: billy
+  duration_seconds: 257
+  active: true
+  reference_artists: []
+  writers:
+  - Bill Withers
+  verse_hints: []
+- title: Tell Her No
+  original_artist: The Zombies
+  key: E
+  lead_singer: ken
+  duration_seconds: 127
+  active: true
+  reference_artists: []
+  writers:
+  - Rod Argent
+  verse_hints: []
+- title: Desire
+  original_artist: U2
+  key: Dm
+  lead_singer: ken
+  duration_seconds: 178
+  active: true
+  reference_artists: []
+  writers:
+  - The Edge
+  - Adam Clayton
+  - Larry Mullen Jr.
+  verse_hints: []
+- title: With or Without You
+  original_artist: U2
+  key: D
+  lead_singer: ken
+  duration_seconds: 295
+  active: true
+  reference_artists: []
+  writers:
+  - The Edge
+  - Adam Clayton
+  - Larry Mullen Jr.
+  - Bono
+  verse_hints: []
+- title: Keep Your Hands to Yourself
+  original_artist: The Georgia Satellites
+  key: A
+  lead_singer: ken
+  duration_seconds: 205
+  active: true
+  reference_artists: []
+  writers:
+  - Dan Baird
+  verse_hints: []
+- title: Hey! Baby
+  original_artist: Bruce Channel
+  key: D
+  lead_singer: rich
+  duration_seconds: 139
+  active: true
+  reference_artists: []
+  writers:
+  - Bruce Channel
+  verse_hints: []
+- title: Eight Days a Week
+  original_artist: The Beatles
+  key: D
+  lead_singer: ken
+  duration_seconds: 163
+  active: true
+  reference_artists: []
+  writers:
+  - John Lennon
+  - Paul McCartney
+  verse_hints: []

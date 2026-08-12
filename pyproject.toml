@@ -1,0 +1,33 @@
+[project]
+name = "music-gigs"
+version = "0.1.0"
+description = "Song database and set list planner for band gigs"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "jinja2>=3.1.0",
+    "pydantic>=2.0.0",
+    "python-multipart>=0.0.9",
+    "pyyaml>=6.0.0",
+    "uvicorn[standard]>=0.32.0",
+]
+
+[project.scripts]
+music-gigs-web = "apps.web.main:run"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/music_gigs", "apps"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"apps" = "apps"
+
+[tool.uv]
+package = true
+
+[dependency-groups]
+dev = ["pytest>=8.0.0"]

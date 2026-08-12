@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Gigs</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="container">
+    <h1>Music Gigs</h1>
+    <p class="subtitle">Select a band to plan a set list.</p>
+    {% if bands %}
+    <ul class="band-list">
+      {% for band in bands %}
+      <li><a href="/bands/{{ band.slug }}">{{ band.name }}</a></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">No bands found. Add a directory with <code>band.yaml</code> and <code>songs.yaml</code>.</p>
+    {% endif %}
+  </main>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<div class="setlist-preview" data-seed="{{ seed | default('') }}">
+  {% if setlist.filter_warnings %}
+  <div class="warnings">
+    {% for warning in setlist.filter_warnings %}
+    <p class="warning">{{ warning }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if setlist.warnings %}
+  <div class="warnings">
+    {% for warning in setlist.warnings %}
+    <p class="warning constraint">
+      Set {{ warning.set_number }}: {{ warning.message }}
+    </p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <p class="setlist-meta">Total: {{ total_duration }} &middot; {{ setlist.songs | length }} songs</p>
+
+  {% for set_number, entries in sets.items() %}
+  <section class="set" data-set="{{ set_number }}">
+    <h2>Set {{ set_number }}</h2>
+    <ol class="song-list" data-set="{{ set_number }}">
+      {% for entry in entries %}
+      <li class="song-item" draggable="true" data-title="{{ entry.song.title }}" data-set="{{ set_number }}">
+        <span class="drag-handle">&#9776;</span>
+        <span class="song-line">
+          {{ band.member_name(entry.song.lead_singer) }} - {{ entry.song.key }} - {{ entry.song.title }}
+          <span class="duration">({{ format_duration(entry.song.duration_seconds) }})</span>
+        </span>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+  {% endfor %}
+
+  {% if not setlist.songs %}
+  <p class="empty">No songs selected. Check your catalog and gig settings.</p>
+  {% endif %}
+</div>

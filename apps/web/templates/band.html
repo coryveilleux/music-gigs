@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ band.name }} — Music Gigs</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="container">
+    <p class="back"><a href="/">&larr; All bands</a></p>
+    <h1>{{ band.name }}</h1>
+    <p class="subtitle">{{ band.catalog.songs | length }} songs in catalog · <a href="/bands/{{ band.slug }}/catalog.txt">Download catalog review list</a></p>
+
+    <form id="gig-form" class="gig-form">
+      <fieldset>
+        <legend>Gig settings</legend>
+        <label>
+          Duration (minutes)
+          <input type="number" name="duration_minutes" value="90" min="30" max="300" step="15">
+        </label>
+
+        {% if band.config.members %}
+        <div class="absent-members">
+          <span>Absent members</span>
+          {% for member in band.config.members %}
+          <label class="checkbox-label">
+            <input type="checkbox" name="absent_members" value="{{ member.id }}">
+            {{ member.name }}
+          </label>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </fieldset>
+
+      <fieldset>
+        <legend>Export columns</legend>
+        <div class="export-columns">
+          {% for col in export_columns %}
+          <label class="checkbox-label">
+            <input type="checkbox" name="export_columns" value="{{ col.id }}" {% if col.default %}checked{% endif %}>
+            {{ col.label }}
+          </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <button type="button" id="generate-btn" class="btn primary">Generate set list</button>
+        <button type="button" id="refresh-btn" class="btn" disabled>Refresh</button>
+      </div>
+    </form>
+
+    <div id="setlist-container"></div>
+
+    <div id="export-actions" class="export-actions hidden">
+      <a id="export-txt" class="btn" href="#">Download text</a>
+      <a id="export-csv" class="btn" href="#">Download CSV</a>
+    </div>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

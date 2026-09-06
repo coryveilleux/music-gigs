@@ -1,0 +1,18 @@
+name: Bail Money Band
+slug: bail-money-band
+members:
+  - id: pete
+    name: Pete Towler
+    instrument: Vocals, Guitar
+  - id: rich
+    name: Rich Scales
+    instrument: Drums
+  - id: ralph
+    name: Ralph Abramo
+    instrument: Guitar
+  - id: cory
+    name: Cory Veilleux
+    instrument: Bass, Backing Vocals
+  - id: john
+    name: John Paolilli
+    instrument: Guitar

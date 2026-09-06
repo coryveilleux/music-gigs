@@ -1,0 +1,10 @@
+name: Pilot Gig
+date: 2026-09-06
+venue: TBD
+sets:
+  - number: 1
+    songs:
+      - slug: i-never-lie
+  - number: 2
+    songs:
+      - slug: 20-cigarettes

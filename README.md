@@ -84,6 +84,27 @@ uv run scripts/export_catalog.py TheOtters -o TheOtters/catalog-review.pdf
 
 Also available from the web app as **PDF for printing** on each band page.
 
+## Gig HTML book (ChordPro charts)
+
+For performance on iPad, build a single offline HTML file from ChordPro charts and a set list:
+
+```
+BailMoneyBand/
+├── band.yaml
+├── songs.yaml          # catalog metadata (keys, notes)
+├── charts/             # one .chopro file per song
+│   └── i-never-lie.chopro
+├── sets/
+│   └── pilot-gig.yaml  # ordered sets for a gig
+└── gig.html            # generated output
+```
+
+```bash
+uv run scripts/build_gig_html.py BailMoneyBand sets/pilot-gig.yaml -o BailMoneyBand/gig.html
+```
+
+AirDrop or share `gig.html` to iPad → open in Safari → Add to Home Screen. Features: numbered set list, search, song pages with chords/lyrics/notes/tab, prev/next navigation.
+
 ## Set list rules
 
 - Songs are auto-picked to roughly fill the gig duration

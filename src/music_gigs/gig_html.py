@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from music_gigs.chordpro import parse_chordpro, render_chordpro_html
+from music_gigs.chordpro import chordpro_to_structured, parse_chordpro
 from music_gigs.loader import load_band_config
 from music_gigs.slug import slugify
 
@@ -70,7 +70,7 @@ def build_gig_data(band_dir: Path, set_path: Path) -> dict:
                 "key": key,
                 "set": set_number,
                 "number": song_index,
-                "html": render_chordpro_html(parsed),
+                "sections": chordpro_to_structured(parsed),
             }
             set_songs.append(song_obj)
             all_songs.append(song_obj)
@@ -167,7 +167,23 @@ def render_gig_html(gig_data: dict) -> str:
     .song-link .num {{ color: var(--accent); font-weight: 700; margin-right: 0.5rem; }}
     .song-link .key {{ color: var(--muted); font-size: 0.9rem; margin-left: 0.5rem; }}
     .song-header h1 {{ font-size: 1.6rem; }}
-    .song-header .artist {{ color: var(--muted); margin-bottom: 1rem; }}
+    .song-header .artist {{ color: var(--muted); margin-bottom: 0.75rem; }}
+    .transpose-bar {{
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+      margin-bottom: 1.25rem; padding: 0.75rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    }}
+    .transpose-bar .key-label {{ font-weight: 600; margin-right: 0.25rem; }}
+    .transpose-bar button {{
+      min-width: 2.5rem; min-height: 2.5rem; padding: 0.35rem 0.6rem;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: #252525; color: var(--text); font-size: 1rem; cursor: pointer;
+    }}
+    .transpose-bar button.reset {{ font-size: 0.85rem; min-width: auto; }}
+    .transpose-bar label.nashville {{
+      display: flex; align-items: center; gap: 0.35rem;
+      margin-left: auto; font-size: 0.9rem; color: var(--muted);
+    }}
     .section-label {{
       color: var(--accent); font-size: 0.95rem; text-transform: uppercase;
       letter-spacing: 0.04em; margin: 1.25rem 0 0.5rem;
@@ -179,6 +195,33 @@ def render_gig_html(gig_data: dict) -> str:
     .lyric-row .chords {{
       color: var(--accent); font-weight: 700;
       min-height: 1.35em; white-space: pre; overflow-x: auto;
+    }}
+    .chord-track {{
+      position: relative;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 1.1rem;
+      min-height: 2.4em;
+      margin-bottom: 0.1rem;
+      overflow-x: auto;
+    }}
+    .chord-track .chord-marker {{
+      position: absolute;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      white-space: nowrap;
+    }}
+    .chord-track .chord {{
+      color: var(--accent);
+      font-weight: 700;
+    }}
+    .chord-track .nashville {{
+      color: var(--muted);
+      font-size: 0.85em;
+      font-weight: 500;
+      display: block;
+      text-align: center;
     }}
     .lyric-row .lyrics {{
       color: var(--text); white-space: pre-wrap; line-height: 1.5;
@@ -235,6 +278,146 @@ def render_gig_html(gig_data: dict) -> str:
 
     bandName.textContent = GIG.band;
     gigMeta.textContent = [GIG.gig, GIG.date, GIG.venue].filter(Boolean).join(" · ");
+
+    const CHROMATIC = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+    const FLAT_TO_SHARP = {{Db:"C#",Eb:"D#",Gb:"F#",Ab:"G#",Bb:"A#",Cb:"B",Fb:"E"}};
+    const MAJOR_SCALE = [0,2,4,5,7,9,11];
+
+    const transposeOffsets = {{}};
+    let showNashville = false;
+    let currentSongSlug = null;
+
+    function esc(s) {{
+      return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }}
+
+    function parseChordRoot(chord) {{
+      let main = chord.trim();
+      if (main.includes("/")) main = main.split("/")[0];
+      const m = main.match(/^([A-G])([#b]?)(.*)$/);
+      if (!m) return [chord, ""];
+      let root = m[1] + m[2];
+      if (FLAT_TO_SHARP[root]) root = FLAT_TO_SHARP[root];
+      return [root, m[3]];
+    }}
+
+    function noteIndex(note) {{
+      const [root] = parseChordRoot(note);
+      return CHROMATIC.indexOf(root);
+    }}
+
+    function transposeChord(chord, semitones) {{
+      if (!chord || !semitones) return chord;
+      let bass = "";
+      let main = chord;
+      if (chord.includes("/")) {{
+        const parts = chord.split("/");
+        main = parts[0];
+        bass = "/" + transposeChord(parts[1], semitones);
+      }}
+      const [root, suffix] = parseChordRoot(main);
+      const idx = CHROMATIC.indexOf(root);
+      if (idx < 0) return chord;
+      const newRoot = CHROMATIC[(idx + semitones + 120) % 12];
+      return newRoot + suffix + bass;
+    }}
+
+    function chordToNashville(chord, key) {{
+      const [keyRoot] = parseChordRoot(key);
+      const [chordRoot, suffix] = parseChordRoot(chord);
+      const ki = CHROMATIC.indexOf(keyRoot);
+      const ci = CHROMATIC.indexOf(chordRoot);
+      if (ki < 0 || ci < 0) return "";
+      const semi = (ci - ki + 12) % 12;
+      const isMinor = suffix.startsWith("m") && !suffix.startsWith("maj");
+      for (let d = 0; d < MAJOR_SCALE.length; d++) {{
+        if (MAJOR_SCALE[d] === semi) {{
+          const num = String(d + 1);
+          if (isMinor && [2,3,6].includes(d + 1)) return num + "m";
+          if (isMinor) return num + "m";
+          return num;
+        }}
+      }}
+      return "";
+    }}
+
+    function writePositionedLine(lyrics, items) {{
+      if (!items.length) return "";
+      const chars = Array(lyrics.length).fill(" ");
+      for (const [pos, text] of items) {{
+        for (let i = 0; i < text.length; i++) {{
+          const idx = pos + i;
+          if (idx < chars.length) chars[idx] = text[i];
+          else chars.push(...Array(idx - chars.length).fill(" "), text[i]);
+        }}
+      }}
+      return chars.join("").trimEnd();
+    }}
+
+    function buildChordLine(lyrics, chords, transpose) {{
+      if (!chords.length) return "";
+      const items = chords.map(entry => [
+        entry.pos,
+        transposeChord(entry.chord, transpose),
+      ]);
+      return writePositionedLine(lyrics, items);
+    }}
+
+    function renderChordTrack(lyrics, chords, key, transpose, showNums) {{
+      if (!showNums) {{
+        const chordLine = buildChordLine(lyrics, chords, transpose);
+        return `<div class="chords">${{esc(chordLine)}}</div>`;
+      }}
+      const markers = chords.map(entry => {{
+        const chord = transposeChord(entry.chord, transpose);
+        const numeral = chordToNashville(chord, key);
+        const numHtml = numeral
+          ? `<span class="nashville" style="width:${{chord.length}}ch">${{esc(numeral)}}</span>`
+          : "";
+        return `<span class="chord-marker" style="left:${{entry.pos}}ch">` +
+          `<span class="chord">${{esc(chord)}}</span>${{numHtml}}</span>`;
+      }}).join("");
+      return `<div class="chord-track">${{markers}}</div>`;
+    }}
+
+    function sectionTitle(type, label) {{
+      let title = type.replace(/_/g, " ").replace(/\\b\\w/g, c => c.toUpperCase());
+      if (label) title += " — " + label;
+      return title;
+    }}
+
+    function renderSections(sections, key, transpose, showNums) {{
+      let html = "";
+      for (const section of sections) {{
+        const hasLabel = section.type !== "comment";
+        if (hasLabel && section.blocks.some(b => b.kind === "lyric" || b.kind === "note")) {{
+          html += `<h3 class="section-label">${{esc(sectionTitle(section.type, section.label))}}</h3>`;
+        }}
+        const blockClass = ["intro","outro"].includes(section.type) ? "note-block" : "lyric-block";
+        let blockHtml = "";
+        for (const block of section.blocks) {{
+          if (block.kind === "lyric") {{
+            const chordHtml = renderChordTrack(
+              block.lyrics, block.chords, key, transpose, showNums
+            );
+            blockHtml += `<div class="lyric-row">` +
+              chordHtml +
+              `<div class="lyrics">${{esc(block.lyrics)}}</div></div>`;
+          }} else if (block.kind === "note") {{
+            blockHtml += `<p class="note">${{esc(block.text)}}</p>`;
+          }} else if (block.kind === "tab" || block.kind === "abc") {{
+            html += `<h3 class="section-label">${{esc(block.label)}}</h3>`;
+            html += `<pre class="${{block.kind}}">${{esc(block.text)}}</pre>`;
+          }}
+        }}
+        if (blockHtml) html += `<div class="${{blockClass}}">${{blockHtml}}</div>`;
+      }}
+      return html;
+    }}
+
+    function displayKey(song, transpose) {{
+      return transposeChord(song.key, transpose);
+    }}
 
     function songBySlug(slug) {{
       return GIG.songs.find(s => s.slug === slug);
@@ -318,16 +501,43 @@ def render_gig_html(gig_data: dict) -> str:
       const song = songBySlug(slug);
       if (!song) {{ showList(); return; }}
       clearSearch();
+      currentSongSlug = slug;
+      const transpose = transposeOffsets[slug] || 0;
       listView.classList.add("hidden");
       songView.classList.remove("hidden");
       navTop.classList.remove("hidden");
       navBottom.classList.remove("hidden");
+      const keyDisplay = displayKey(song, transpose);
+      const transposeLabel = transpose === 0 ? "" : ` (${{transpose > 0 ? "+" : ""}}${{transpose}})`;
       songView.innerHTML =
         `<div class="song-header">` +
-        `<h1>${{song.number}}. ${{song.title}}</h1>` +
-        `<p class="artist">Set ${{song.set}} · Key ${{song.key}}${{song.artist ? " · " + song.artist : ""}}</p>` +
+        `<h1>${{song.number}}. ${{esc(song.title)}}</h1>` +
+        `<p class="artist">Set ${{song.set}}${{song.artist ? " · " + esc(song.artist) : ""}}</p>` +
         `</div>` +
-        song.html;
+        `<div class="transpose-bar">` +
+        `<span class="key-label">Key: ${{esc(keyDisplay)}}${{transposeLabel}}</span>` +
+        `<button type="button" id="tp-down" title="Down half step">−</button>` +
+        `<button type="button" class="reset" id="tp-reset">Reset</button>` +
+        `<button type="button" id="tp-up" title="Up half step">+</button>` +
+        `<label class="nashville"><input type="checkbox" id="tp-nashville" ${{showNashville ? "checked" : ""}}> Nashville #</label>` +
+        `</div>` +
+        renderSections(song.sections, keyDisplay, transpose, showNashville);
+      document.getElementById("tp-down").onclick = () => {{
+        transposeOffsets[slug] = (transposeOffsets[slug] || 0) - 1;
+        renderSong(slug);
+      }};
+      document.getElementById("tp-up").onclick = () => {{
+        transposeOffsets[slug] = (transposeOffsets[slug] || 0) + 1;
+        renderSong(slug);
+      }};
+      document.getElementById("tp-reset").onclick = () => {{
+        transposeOffsets[slug] = 0;
+        renderSong(slug);
+      }};
+      document.getElementById("tp-nashville").onchange = (e) => {{
+        showNashville = e.target.checked;
+        renderSong(slug);
+      }};
       window.scrollTo(0, 0);
     }}
 

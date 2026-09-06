@@ -3,6 +3,9 @@ from __future__ import annotations
 import html
 import re
 from dataclasses import dataclass, field
+from typing import Any
+
+from music_gigs.chords import chord_to_nashville, transpose_chord
 
 
 @dataclass
@@ -59,32 +62,142 @@ def _plain_lyric_line(line: str) -> str:
     return _CHORD_RE.sub("", line)
 
 
-def _render_lyric_line(line: str) -> str:
-    """Render chords on a line above the lyrics (classic chart layout)."""
+def _chord_positions(line: str) -> tuple[str, list[dict[str, Any]]]:
     lyric_plain = _plain_lyric_line(line)
-    if not _CHORD_RE.search(line):
-        return f'<div class="lyric-row lyrics-only"><div class="lyrics">{html.escape(lyric_plain)}</div></div>'
-
-    chord_chars = [" "] * len(lyric_plain)
+    chords: list[dict[str, Any]] = []
     for match in _CHORD_RE.finditer(line):
         plain_before = _plain_lyric_line(line[: match.start()])
-        pos = len(plain_before)
-        chord = match.group(1)
-        for i, ch in enumerate(chord):
-            idx = pos + i
-            if idx < len(chord_chars):
-                chord_chars[idx] = ch
-            else:
-                chord_chars.extend([" "] * (idx - len(chord_chars)))
-                chord_chars.append(ch)
+        chords.append({"pos": len(plain_before), "chord": match.group(1)})
+    return lyric_plain, chords
 
-    chord_line = "".join(chord_chars).rstrip()
-    return (
-        f'<div class="lyric-row">'
-        f'<div class="chords">{html.escape(chord_line)}</div>'
-        f'<div class="lyrics">{html.escape(lyric_plain)}</div>'
-        f"</div>"
-    )
+
+def _write_positioned_line(lyric_plain: str, items: list[tuple[int, str]]) -> str:
+    if not items:
+        return ""
+    chars = [" "] * len(lyric_plain)
+    for pos, text in items:
+        for i, ch in enumerate(text):
+            idx = pos + i
+            if idx < len(chars):
+                chars[idx] = ch
+            else:
+                chars.extend([" "] * (idx - len(chars)))
+                chars.append(ch)
+    return "".join(chars).rstrip()
+
+
+def _build_chord_line(
+    lyric_plain: str,
+    chords: list[dict[str, Any]],
+    song_key: str,
+    transpose: int = 0,
+) -> str:
+    if not chords:
+        return ""
+    items: list[tuple[int, str]] = []
+    for entry in chords:
+        chord = transpose_chord(entry["chord"], transpose)
+        items.append((entry["pos"], chord))
+    return _write_positioned_line(lyric_plain, items)
+
+
+def _build_nashville_line(
+    lyric_plain: str,
+    chords: list[dict[str, Any]],
+    song_key: str,
+    transpose: int = 0,
+) -> str:
+    if not chords:
+        return ""
+    items: list[tuple[int, str]] = []
+    for entry in chords:
+        chord = transpose_chord(entry["chord"], transpose)
+        numeral = chord_to_nashville(chord, song_key)
+        if numeral:
+            offset = max(0, (len(chord) - len(numeral)) // 2)
+            items.append((entry["pos"] + offset, numeral))
+    return _write_positioned_line(lyric_plain, items)
+
+
+def _render_chord_track_html(
+    chords: list[dict[str, Any]],
+    song_key: str,
+    transpose: int = 0,
+    show_nashville: bool = False,
+) -> str:
+    markers: list[str] = []
+    for entry in chords:
+        chord = transpose_chord(entry["chord"], transpose)
+        pos = entry["pos"]
+        numeral = chord_to_nashville(chord, song_key) if show_nashville else ""
+        num_html = ""
+        if numeral:
+            num_html = (
+                f'<span class="nashville" style="width:{len(chord)}ch">'
+                f"{html.escape(numeral)}</span>"
+            )
+        markers.append(
+            f'<span class="chord-marker" style="left:{pos}ch">'
+            f'<span class="chord">{html.escape(chord)}</span>'
+            f"{num_html}"
+            f"</span>"
+        )
+    return f'<div class="chord-track">{"".join(markers)}</div>'
+
+
+def chordpro_to_structured(song: ChordProSong) -> list[dict[str, Any]]:
+    """Export song sections for client-side rendering and transposition."""
+    structured: list[dict[str, Any]] = []
+
+    for section in song.sections:
+        section_type = section["type"]
+        label = section.get("label", "")
+        lines = section.get("lines", [])
+        blocks: list[dict[str, Any]] = []
+
+        if section_type == "comment":
+            blocks.append({"kind": "note", "text": " ".join(lines)})
+        elif section_type in {"tab", "abc"}:
+            blocks.append(
+                {
+                    "kind": section_type,
+                    "label": label or section_type,
+                    "text": "\n".join(lines),
+                }
+            )
+        else:
+            for line in lines:
+                if _CHORD_RE.search(line):
+                    lyrics, chords = _chord_positions(line)
+                    blocks.append({"kind": "lyric", "lyrics": lyrics, "chords": chords})
+                else:
+                    blocks.append({"kind": "note", "text": line})
+
+        structured.append({"type": section_type, "label": label, "blocks": blocks})
+
+    return structured
+
+
+def _render_lyric_line(
+    line: str,
+    song_key: str = "C",
+    transpose: int = 0,
+    show_nashville: bool = False,
+) -> str:
+    """Render chords on a line above the lyrics (classic chart layout)."""
+    lyric_plain, chords = _chord_positions(line)
+    if not chords:
+        return f'<div class="lyric-row lyrics-only"><div class="lyrics">{html.escape(lyric_plain)}</div></div>'
+
+    chord_line = _build_chord_line(lyric_plain, chords, song_key, transpose)
+    if show_nashville:
+        parts = [
+            _render_chord_track_html(chords, song_key, transpose, show_nashville=True)
+        ]
+    else:
+        parts = [f'<div class="chords">{html.escape(chord_line)}</div>']
+    parts.append(f'<div class="lyrics">{html.escape(lyric_plain)}</div>')
+    return f'<div class="lyric-row">{"".join(parts)}</div>'
 
 
 def render_chordpro_html(song: ChordProSong) -> str:

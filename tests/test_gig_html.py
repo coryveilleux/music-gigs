@@ -26,7 +26,7 @@ e|--0--|
 def test_chords_above_lyrics():
     from music_gigs.chordpro import _render_lyric_line
 
-    html = _render_lyric_line("And you [Em]met someone")
+    html = _render_lyric_line("And you [Em]met someone", song_key="D")
     assert "And you met someone" in html
     assert "Em" in html
     assert "Emmet" not in html
@@ -41,7 +41,8 @@ def test_build_pilot_gig():
     assert len(data["sets"]) == 2
     assert len(data["songs"]) == 2
     assert data["songs"][0]["slug"] == "i-never-lie"
+    assert data["songs"][0]["sections"]
     html = render_gig_html(data)
     assert "I Never Lie" in html
     assert "20 Cigarettes" in html
-    assert "GIG = " in html
+    assert "transpose-bar" in html

@@ -1,0 +1,42 @@
+name: Lilac Hedge Farm Rutland
+date: 2026-09-12
+venue: Lilac Hedge Farm, Rutland MA
+sets:
+  - number: 1
+    songs:
+      - slug: buy-me-a-boat
+      - slug: folsom
+      - slug: more-than-my-hometown
+      - slug: cant-you-see
+      - slug: oklahoma-smoke-show
+      - slug: move-it-on-over
+      - slug: lay-you-down
+      - slug: gimme-3-steps
+      - slug: little-sister
+      - slug: nine-ball
+      - slug: wagon-wheel
+      - slug: american-girl
+  - number: 2
+    songs:
+      - slug: honky-tonk-man
+      - slug: what-kind-of-man
+      - slug: long-live-cow-girls-3-4-scow
+      - slug: nation-wide
+      - slug: much-too-young-to-feel-this-old
+      - slug: when-it-rains-it-pours
+      - slug: hey-good-lookin
+      - slug: wild-knight
+      - slug: country-roads
+      - slug: fishin-in-the-dark
+  - number: 3
+    songs:
+      - slug: sounds-like-the-radio
+      - slug: should-a-been-a-cowboy
+      - slug: anything-but-mine
+      - slug: half-of-me
+      - slug: stay-here-and-drink
+      - slug: fast-as-you
+      - slug: chicken-fried
+      - slug: open-the-gate
+      - slug: cruise
+      - slug: sweet-home-alabama

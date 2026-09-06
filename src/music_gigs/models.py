@@ -16,10 +16,10 @@ class BandConfig(BaseModel):
 
 class Song(BaseModel):
     title: str
-    original_artist: str
+    original_artist: str = ""
     key: str
-    lead_singer: str
-    duration_seconds: int
+    lead_singer: str = ""
+    duration_seconds: int = 0
     active: bool = True
     reference_artists: list[str] = Field(default_factory=list)
     writers: list[str] = Field(default_factory=list)

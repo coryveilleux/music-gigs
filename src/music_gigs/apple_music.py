@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import csv
+import json
 import re
+import urllib.parse
+import urllib.request
 import xml.etree.ElementTree as ET
 from codecs import BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF8
 from dataclasses import dataclass, field
@@ -168,3 +171,89 @@ def parse_apple_music_playlist(xml_path: Path) -> list[PlaylistTrack]:
             i += 1
 
     return playlist_tracks
+
+
+_SKIP_WEB_PLAYLIST_NAMES = {
+    "preview",
+    "country tunes - pete towler",
+    "featured artists",
+    "subscriptionstatuschange",
+    "restrictionsdidchange",
+    "sortbychange",
+}
+
+
+def _unescape_json_string(value: str) -> str:
+    return json.loads(f'"{value}"')
+
+
+def normalize_track_title(title: str) -> str:
+    title = title.lower().strip()
+    title = re.sub(r"\([^)]*\)", "", title)
+    title = re.sub(r"[''`]", "", title)
+    title = re.sub(r"[^a-z0-9]+", "", title)
+    return title
+
+
+def parse_apple_music_web_playlist(html: str) -> list[PlaylistTrack]:
+    """Parse track title/artist pairs from a public Apple Music playlist page."""
+    pattern = re.compile(r'"(artistName|name)":"((?:\\.|[^"\\])*)"')
+    current_artist: str | None = None
+    seen: set[tuple[str, str]] = set()
+    tracks: list[PlaylistTrack] = []
+
+    for kind, raw_value in pattern.findall(html):
+        value = _unescape_json_string(raw_value)
+        if kind == "artistName":
+            current_artist = value
+            continue
+        if not current_artist:
+            continue
+        if value.lower() in _SKIP_WEB_PLAYLIST_NAMES:
+            continue
+        key = (value.lower(), current_artist.lower())
+        if key in seen:
+            continue
+        seen.add(key)
+        tracks.append(PlaylistTrack(title=value, artist=current_artist, duration_seconds=0))
+
+    return tracks
+
+
+def fetch_apple_music_web_playlist(url: str) -> list[PlaylistTrack]:
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": "music-gigs/0.1"},
+    )
+    with urllib.request.urlopen(request, timeout=30) as response:
+        html = response.read().decode("utf-8", errors="ignore")
+    return parse_apple_music_web_playlist(html)
+
+
+def lookup_itunes_track(title: str, artist: str = "") -> PlaylistTrack | None:
+    term = f"{title} {artist}".strip()
+    query = urllib.parse.urlencode({"term": term, "entity": "song", "limit": 5})
+    request = urllib.request.Request(
+        f"https://itunes.apple.com/search?{query}",
+        headers={"User-Agent": "music-gigs/0.1"},
+    )
+    with urllib.request.urlopen(request, timeout=20) as response:
+        payload = json.load(response)
+
+    results = payload.get("results") or []
+    if not results:
+        return None
+
+    target = normalize_track_title(title)
+    best = results[0]
+    for result in results:
+        if normalize_track_title(result.get("trackName", "")) == target:
+            best = result
+            break
+
+    duration_ms = best.get("trackTimeMillis") or 0
+    return PlaylistTrack(
+        title=best.get("trackName") or title,
+        artist=best.get("artistName") or artist,
+        duration_seconds=int(duration_ms / 1000),
+    )

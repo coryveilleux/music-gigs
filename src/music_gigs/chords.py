@@ -42,6 +42,12 @@ def parse_chord_name(chord: str) -> tuple[str, str]:
     return root, match.group(3)
 
 
+def semitones_between_keys(source_key: str, target_key: str) -> int:
+    source_root, _ = parse_chord_name(source_key)
+    target_root, _ = parse_chord_name(target_key)
+    return (_note_index(target_root) - _note_index(source_root)) % 12
+
+
 def transpose_chord(chord: str, semitones: int) -> str:
     if not chord or semitones == 0:
         return chord

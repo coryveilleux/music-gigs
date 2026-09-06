@@ -4,6 +4,7 @@
 # dependencies = [
 #     "pydantic>=2.0.0",
 #     "pyyaml>=6.0.0",
+#     "fpdf2>=2.8.0",
 # ]
 # ///
 """Export the full song catalog as an aligned review list."""
@@ -16,7 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from music_gigs.export import render_catalog_review
+from music_gigs.export import render_catalog_review, render_catalog_review_pdf
 from music_gigs.loader import load_band
 
 
@@ -29,7 +30,12 @@ def main() -> None:
         "-o",
         "--output",
         type=Path,
-        help="Write to file instead of stdout",
+        help="Write to file instead of stdout (use .pdf for PDF output)",
+    )
+    parser.add_argument(
+        "--pdf",
+        action="store_true",
+        help="Export as PDF (or inferred when -o ends with .pdf)",
     )
     parser.add_argument(
         "--include-inactive",
@@ -43,8 +49,19 @@ def main() -> None:
         sys.exit(1)
 
     band = load_band(args.band_dir)
-    text = render_catalog_review(band, active_only=not args.include_inactive)
+    active_only = not args.include_inactive
+    as_pdf = args.pdf or (args.output is not None and args.output.suffix.lower() == ".pdf")
 
+    if as_pdf:
+        pdf_bytes = render_catalog_review_pdf(band, active_only=active_only)
+        if args.output:
+            args.output.write_bytes(pdf_bytes)
+            print(f"Wrote PDF ({len(pdf_bytes) // 1024} KB) to {args.output}")
+        else:
+            sys.stdout.buffer.write(pdf_bytes)
+        return
+
+    text = render_catalog_review(band, active_only=active_only)
     if args.output:
         args.output.write_text(text, encoding="utf-8")
         print(f"Wrote {len(text.splitlines())} songs to {args.output}")

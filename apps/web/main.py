@@ -10,7 +10,7 @@ from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from music_gigs.export import render_catalog_review, render_csv, render_text
+from music_gigs.export import render_catalog_review, render_catalog_review_pdf, render_csv, render_text
 from music_gigs.loader import discover_bands, format_duration, load_band
 from music_gigs.models import DEFAULT_TEXT_TEMPLATE, EXPORT_COLUMNS, GigConfig
 from music_gigs.orderer import build_setlist, reorder_setlist
@@ -114,6 +114,19 @@ async def reorder(
         request,
         "partials/setlist.html",
         _setlist_context(band, setlist),
+    )
+
+
+@app.get("/bands/{slug}/catalog.pdf")
+async def export_catalog_pdf(slug: str):
+    band = _get_band(slug)
+    pdf_bytes = render_catalog_review_pdf(band)
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{band.slug}-catalog.pdf"',
+        },
     )
 
 

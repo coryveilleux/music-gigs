@@ -1,0 +1,1142 @@
+songs:
+- title: Buy me a boat
+  original_artist: 
+  key: D
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Move it on over
+  original_artist: 
+  key: E
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Gimme 3 Steps
+  original_artist: 
+  key: D
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Living in Fast Forward
+  original_artist: 
+  key: A
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Oklahoma Smoke Show
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Lay you down
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Tennessee Whiskey
+  original_artist: 
+  key: A
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Nation Wide
+  original_artist: 
+  key: C
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: I Never Lie
+  original_artist: 
+  key: D
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: 20 Cigarettes
+  original_artist: 
+  key: A
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: V1 C1 V2 C2 Inst(V) B V3 Inst(V)
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - V and G
+  - Then B "We burned..."
+  - Then D "13 cigarettes"
+  outro:
+  - Instrumental
+  - End on last chord of progression
+- title: When it Rains it Pours
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: V1 C1 V2 C2 V3 C3 B
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - Vocal pickup
+  - All but B until 2nd half of verse
+  outro:
+  - 
+  - 
+- title: Mary Jane
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: American Girl
+  original_artist: 
+  key: D
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Beer in Mexico
+  original_artist: 
+  key: D
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Bigfoot
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Fast as You
+  original_artist: 
+  key: E
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: What kind of Man
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Much too Young to feel this old
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: More than my Hometown
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Half of me
+  original_artist: 
+  key: 6
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Hey Good Look'in
+  original_artist: 
+  key: D
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Wagon Wheel
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Wild Knight
+  original_artist: 
+  key: E
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Folsom
+  original_artist: 
+  key: E
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Fishin in the Dark
+  original_artist: 
+  key: C
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Down to the Honky Tonk
+  original_artist: 
+  key: D
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Nine Ball
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Long Live Cow Girls 3/4-scow
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Anything but Mine
+  original_artist: 
+  key: E
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: I won't back down
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: That's my kind of night
+  original_artist: 
+  key: A
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Amie
+  original_artist: 
+  key: D
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Pour me a Drink
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Country Roads
+  original_artist: 
+  key: A
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Chicken Fried
+  original_artist: 
+  key: D
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Should a been a Cowboy
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Sparks Fly
+  original_artist: 
+  key: C
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Open the Gate
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Stay Here and Drink
+  original_artist: 
+  key: A
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Beer with my Friends
+  original_artist: 
+  key: A
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: All about tonight
+  original_artist: 
+  key: A
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Little Sister
+  original_artist: 
+  key: E
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Working Man Blues
+  original_artist: 
+  key: A
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Can't you see
+  original_artist: 
+  key: D
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Looking for Love
+  original_artist: 
+  key: D
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Pride and Joy
+  original_artist: 
+  key: E
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Drink in My Hard
+  original_artist: 
+  key: A
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Country ASS Shit
+  original_artist: 
+  key: F
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: The way I talk
+  original_artist: 
+  key: D
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Honky Tonk Man
+  original_artist: 
+  key: E
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Sounds Like the Radio
+  original_artist: 
+  key: D
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Sweet Home Alabama
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Cruise
+  original_artist: 
+  key: A
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: On the Road Again
+  original_artist: 
+  key: E
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: I don't want this night to end
+  original_artist: 
+  key: C
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Birthday to You
+  original_artist: 
+  key: A
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 
+- title: Remember When
+  original_artist: 
+  key: G
+  duration_seconds: 
+  active: true
+  reference_artists: []
+  writers: []
+  verse_hints: []
+  structure: 
+  progressions:
+  - verse: 
+  - chorus: 
+  - bridge: 
+  notes: 
+  intro:
+  - 
+  - 
+  outro:
+  - 
+  - 

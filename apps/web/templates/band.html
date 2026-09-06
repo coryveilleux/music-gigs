@@ -10,7 +10,7 @@
   <main class="container">
     <p class="back"><a href="/">&larr; All bands</a></p>
     <h1>{{ band.name }}</h1>
-    <p class="subtitle">{{ band.catalog.songs | length }} songs in catalog · <a href="/bands/{{ band.slug }}/catalog.txt">Download catalog review list</a></p>
+    <p class="subtitle">{{ band.catalog.songs | length }} songs in catalog · <a href="/bands/{{ band.slug }}/catalog.txt">Text list</a> · <a href="/bands/{{ band.slug }}/catalog.pdf">PDF for printing</a></p>
 
     <form id="gig-form" class="gig-form">
       <fieldset>

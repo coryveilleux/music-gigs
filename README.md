@@ -75,7 +75,14 @@ uv run scripts/export_catalog.py TheOtters -o catalog-review.txt
 
 Format: `singer - key - title: original_artist` (sorted by singer, then title).
 
-Also available from the web app as **Download catalog review list** on each band page.
+PDF export uses landscape letter, monospace Courier, and fits 10–15 songs per page
+(4 pages for ~47 songs) so it's readable on top of an amp.
+
+```bash
+uv run scripts/export_catalog.py TheOtters -o TheOtters/catalog-review.pdf
+```
+
+Also available from the web app as **PDF for printing** on each band page.
 
 ## Set list rules
 

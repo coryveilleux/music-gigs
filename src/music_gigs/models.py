@@ -50,6 +50,10 @@ class Band(BaseModel):
                 return member.name.strip()
         return member_id
 
+    def member_first_name(self, member_id: str) -> str:
+        name = self.member_name(member_id)
+        return name.split()[0] if name.split() else name
+
 
 class GigConfig(BaseModel):
     duration_minutes: int = 90

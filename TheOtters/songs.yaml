@@ -488,3 +488,14 @@ songs:
   - John Lennon
   - Paul McCartney
   verse_hints: []
+- title: Ain't That a Shame
+  original_artist: Fats Domino
+  key: A
+  lead_singer: billy
+  duration_seconds: 152
+  active: true
+  reference_artists: []
+  writers:
+  - Fats Domino
+  - Dave Bartholomew
+  verse_hints: []

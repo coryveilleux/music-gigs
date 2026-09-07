@@ -1,1142 +1,467 @@
+# Bail Money Band song catalog
+# Keys are performance keys. Chart/arrangement details live in charts/*.chopro
+# Metadata enriched from Apple Music playlist export
+
 songs:
 - title: Buy me a boat
-  original_artist: 
+  original_artist: Chris Janson
   key: D
-  duration_seconds: 
+  duration_seconds: 179
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Chris DuBois
+  - Chris Janson
 - title: Move it on over
-  original_artist: 
+  original_artist: Hank Williams
   key: E
-  duration_seconds: 
+  duration_seconds: 166
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Hank Williams
 - title: Gimme 3 Steps
-  original_artist: 
+  original_artist: Lynyrd Skynyrd
   key: D
-  duration_seconds: 
+  duration_seconds: 271
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Allen Collins
+  - Ronnie Van Zant
 - title: Living in Fast Forward
-  original_artist: 
+  original_artist: Kenny Chesney
   key: A
-  duration_seconds: 
+  duration_seconds: 211
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - David Lee Murphy
+  - Rivers Rutherford
 - title: Oklahoma Smoke Show
-  original_artist: 
+  original_artist: Zach Bryan
   key: G
-  duration_seconds: 
+  duration_seconds: 211
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Zachary Lane Bryan
 - title: Lay you down
-  original_artist: 
+  original_artist: Conway Twitty
   key: G
-  duration_seconds: 
+  duration_seconds: 199
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Johnny MacRae
 - title: Tennessee Whiskey
-  original_artist: 
+  original_artist: Chris Stapleton
   key: A
-  duration_seconds: 
+  duration_seconds: 293
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Dean Dillon
+  - Linda Hargrove
 - title: Nation Wide
-  original_artist: 
+  original_artist: Dwight Yoakam
   key: C
-  duration_seconds: 
+  duration_seconds: 254
   active: true
-  reference_artists: []
   writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
 - title: I Never Lie
-  original_artist: 
+  original_artist: Zach Top
   key: D
-  duration_seconds: 
+  duration_seconds: 224
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Zach Top
+  - Carson Chamberlain
+  - Tim Nichols
 - title: 20 Cigarettes
-  original_artist: 
+  original_artist: Morgan Wallen
   key: A
-  duration_seconds: 
+  duration_seconds: 160
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: V1 C1 V2 C2 Inst(V) B V3 Inst(V)
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - V and G
-  - Then B "We burned..."
-  - Then D "13 cigarettes"
-  outro:
-  - Instrumental
-  - End on last chord of progression
+  writers:
+  - Chris LaCorte
+  - Chase McGill
+  - Blake Pendergrass
+  - Josh Miller
 - title: When it Rains it Pours
-  original_artist: 
+  original_artist: Luke Combs
   key: G
-  duration_seconds: 
+  duration_seconds: 242
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: V1 C1 V2 C2 V3 C3 B
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - Vocal pickup
-  - All but B until 2nd half of verse
-  outro:
-  - 
-  - 
+  writers:
+  - Luke Combs
+  - Ray Fulcher
+  - Jordan Walker
 - title: Mary Jane
-  original_artist: 
+  original_artist: Tom Petty & The Heartbreakers
   key: G
-  duration_seconds: 
+  duration_seconds: 271
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Tom Petty
 - title: American Girl
-  original_artist: 
+  original_artist: Tom Petty & The Heartbreakers
   key: D
-  duration_seconds: 
+  duration_seconds: 212
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Tom Petty
 - title: Beer in Mexico
-  original_artist: 
+  original_artist: Kenny Chesney
   key: D
-  duration_seconds: 
+  duration_seconds: 273
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Kenny Chesney
 - title: Bigfoot
-  original_artist: 
+  original_artist: Pete Towler
   key: G
-  duration_seconds: 
+  duration_seconds: 175
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Peter Towler
 - title: Fast as You
-  original_artist: 
+  original_artist: Dwight Yoakam
   key: E
-  duration_seconds: 
+  duration_seconds: 287
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Dwight Yoakam
 - title: What kind of Man
-  original_artist: 
+  original_artist: Parker McCollum
   key: G
-  duration_seconds: 
+  duration_seconds: 259
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Parker McCollum
+  - Jeremy Spillman
+  - Natalie Hemby
 - title: Much too Young to feel this old
-  original_artist: 
+  original_artist: Garth Brooks Tribute
   key: G
-  duration_seconds: 
+  duration_seconds: 178
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Randy Taylor
+  - Garth Brooks
 - title: More than my Hometown
-  original_artist: 
+  original_artist: Morgan Wallen
   key: G
-  duration_seconds: 
+  duration_seconds: 216
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Morgan Wallen
+  - Michael Hardy
+  - Ernest Keith Smith
+  - Ryan Vojtesak
 - title: Half of me
-  original_artist: 
-  key: 6
-  duration_seconds: 
+  original_artist: Thomas Rhett
+  key: G
+  duration_seconds: 183
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Thomas Rhett
+  - Rhett Akins
+  - Will Bundy
+  - Josh Thompson
 - title: Hey Good Look'in
-  original_artist: 
+  original_artist: Hank Williams
   key: D
-  duration_seconds: 
+  duration_seconds: 177
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Hank Williams
 - title: Wagon Wheel
-  original_artist: 
+  original_artist: Darius Rucker
   key: G
-  duration_seconds: 
+  duration_seconds: 298
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Bob Dylan
+  - Ketch Secor
 - title: Wild Knight
-  original_artist: 
+  original_artist: John Mellencamp
   key: E
-  duration_seconds: 
+  duration_seconds: 207
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Van Morrison
 - title: Folsom
-  original_artist: 
+  original_artist: Johnny Cash
   key: E
-  duration_seconds: 
+  duration_seconds: 162
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Johnny Cash
 - title: Fishin in the Dark
-  original_artist: 
+  original_artist: Nitty Gritty Dirt Band
   key: C
-  duration_seconds: 
+  duration_seconds: 211
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Wendy Waldman
+  - Jim Photoglo
 - title: Down to the Honky Tonk
-  original_artist: 
+  original_artist: Jake Owen
   key: D
-  duration_seconds: 
+  duration_seconds: 186
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Luke Laird
+  - Rodney Clawson
+  - Shane McAnally
 - title: Nine Ball
-  original_artist: 
+  original_artist: Zach Bryan
   key: G
-  duration_seconds: 
+  duration_seconds: 169
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Zach Bryan
 - title: Long Live Cow Girls 3/4-scow
-  original_artist: 
+  original_artist: Ian Munsick & Cody Johnson
   key: G
-  duration_seconds: 
+  duration_seconds: 184
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Aby Gutierrez
+  - Ian Munsick
+  - Phil O'Donnell
 - title: Anything but Mine
-  original_artist: 
+  original_artist: Kenny Chesney
   key: E
-  duration_seconds: 
+  duration_seconds: 325
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Scooter Carusoe
 - title: I won't back down
-  original_artist: 
+  original_artist: Tom Petty
   key: G
-  duration_seconds: 
+  duration_seconds: 175
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Tom Petty
+  - Jeff Lynne
 - title: That's my kind of night
-  original_artist: 
+  original_artist: Luke Bryan
   key: A
-  duration_seconds: 
+  duration_seconds: 189
   active: true
-  reference_artists: []
   writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
 - title: Amie
-  original_artist: 
+  original_artist: Pure Prairie League
   key: D
-  duration_seconds: 
+  duration_seconds: 260
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Craig Fuller
 - title: Pour me a Drink
-  original_artist: 
+  original_artist: Post Malone
   key: G
-  duration_seconds: 
+  duration_seconds: 195
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Austin Post
+  - Louis Bell
+  - Charlie Handsome
+  - John Byron
+  - Rocky Block
+  - Jordan Dozzi
 - title: Country Roads
-  original_artist: 
+  original_artist: John Denver
   key: A
-  duration_seconds: 
+  duration_seconds: 193
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - John Denver
+  - Bill Danoff
+  - Taffy Nivert Danoff
+  - Mary Danoff
 - title: Chicken Fried
-  original_artist: 
+  original_artist: Zac Brown Band
   key: D
-  duration_seconds: 
+  duration_seconds: 237
   active: true
-  reference_artists: []
   writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
 - title: Should a been a Cowboy
-  original_artist: 
+  original_artist: Toby Keith
   key: G
-  duration_seconds: 
+  duration_seconds: 209
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Toby Keith
 - title: Sparks Fly
-  original_artist: 
+  original_artist: Taylor Swift
   key: C
-  duration_seconds: 
+  duration_seconds: 260
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Taylor Swift
 - title: Open the Gate
-  original_artist: 
+  original_artist: Zach Bryan
   key: G
-  duration_seconds: 
+  duration_seconds: 234
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Zach Bryan
 - title: Stay Here and Drink
-  original_artist: 
+  original_artist: Merle Haggard
   key: A
-  duration_seconds: 
+  duration_seconds: 271
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Merle Haggard
 - title: Beer with my Friends
-  original_artist: 
+  original_artist: Garth Brooks Tribute
   key: A
-  duration_seconds: 
+  duration_seconds: 256
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Dewayne Blackwell
+  - Earl Bud Lee
 - title: All about tonight
-  original_artist: 
+  original_artist: Blake Shelton
   key: A
-  duration_seconds: 
+  duration_seconds: 207
   active: true
-  reference_artists: []
   writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
 - title: Little Sister
-  original_artist: 
+  original_artist: Dwight Yoakam
   key: E
-  duration_seconds: 
+  duration_seconds: 185
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Doc Pomus
+  - Mort Shuman
 - title: Working Man Blues
-  original_artist: 
+  original_artist: Merle Haggard
   key: A
-  duration_seconds: 
+  duration_seconds: 155
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Merle Haggard
 - title: Can't you see
-  original_artist: 
+  original_artist: The Marshall Tucker Band
   key: D
-  duration_seconds: 
+  duration_seconds: 365
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Toy Caldwell
 - title: Looking for Love
-  original_artist: 
+  original_artist: Johnny Lee
   key: D
-  duration_seconds: 
+  duration_seconds: 215
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Bob Morrison
+  - Patti Ryan
+  - Wanda Mallette
 - title: Pride and Joy
-  original_artist: 
+  original_artist: Stevie Ray Vaughan & Double Trouble
   key: E
-  duration_seconds: 
+  duration_seconds: 219
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Stevie Ray Vaughan
 - title: Drink in My Hard
-  original_artist: 
+  original_artist: Eric Church
   key: A
-  duration_seconds: 
+  duration_seconds: 191
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Eric Church
+  - Michael P. Heeney
+  - Luke Laird
 - title: Country ASS Shit
-  original_artist: 
+  original_artist: Morgan Wallen
   key: F
-  duration_seconds: 
+  duration_seconds: 186
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Morgan Wallen
+  - Chase McGill
+  - Jordan Schmidt
 - title: The way I talk
-  original_artist: 
+  original_artist: Morgan Wallen
   key: D
-  duration_seconds: 
+  duration_seconds: 208
   active: true
-  reference_artists: []
   writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
 - title: Honky Tonk Man
-  original_artist: 
+  original_artist: Jon Pardi
   key: E
-  duration_seconds: 
+  duration_seconds: 171
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Tillman Franks
+  - Howard Hausey
+  - Johnny Horton
 - title: Sounds Like the Radio
-  original_artist: 
+  original_artist: Zach Top
   key: D
-  duration_seconds: 
+  duration_seconds: 218
   active: true
-  reference_artists: []
   writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
 - title: Sweet Home Alabama
-  original_artist: 
+  original_artist: Lynyrd Skynyrd
   key: G
-  duration_seconds: 
+  duration_seconds: 283
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Gary Rossington
+  - Ronnie Van Zant
+  - Edward King
 - title: Cruise
-  original_artist: 
+  original_artist: Florida Georgia Line
   key: A
-  duration_seconds: 
+  duration_seconds: 210
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Tyler Hubbard
+  - Brian Kelley
+  - Joey Moi
+  - Chase and Jesse Rice
 - title: On the Road Again
-  original_artist: 
+  original_artist: Willie Nelson
   key: E
-  duration_seconds: 
+  duration_seconds: 152
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - Willie Nelson
 - title: I don't want this night to end
-  original_artist: 
+  original_artist: Luke Bryan
   key: C
-  duration_seconds: 
+  duration_seconds: 219
   active: true
-  reference_artists: []
   writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
-- title: Birthday to You
-  original_artist: 
+- title: Birthday
+  original_artist: The Beatles
   key: A
-  duration_seconds: 
+  duration_seconds: 162
   active: true
-  reference_artists: []
-  writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+  writers:
+  - John Lennon
+  - Paul McCartney
 - title: Remember When
-  original_artist: 
+  original_artist: Alan Jackson
   key: G
-  duration_seconds: 
+  duration_seconds: 270
   active: true
-  reference_artists: []
   writers: []
-  verse_hints: []
-  structure: 
-  progressions:
-  - verse: 
-  - chorus: 
-  - bridge: 
-  notes: 
-  intro:
-  - 
-  - 
-  outro:
-  - 
-  - 
+- title: Why Don't We Get Drunk
+  original_artist: Jimmy Buffett
+  key: ''
+  duration_seconds: 163
+  active: true
+  writers:
+  - Jimmy Buffett
+- title: Long Legs & Long Necks
+  original_artist: Jackson Taylor Band
+  key: ''
+  duration_seconds: 237
+  active: true
+  writers: []
+- title: Dixieland Delight
+  original_artist: Alabama
+  key: ''
+  duration_seconds: 325
+  active: true
+  writers:
+  - Ronnie Rogers

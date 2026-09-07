@@ -204,6 +204,14 @@ def is_chart_stub(chart_path: Path) -> bool:
     return "[TBD]" in text or "Chart pending" in text
 
 
+def validate_tab_url(url: str) -> bool:
+    try:
+        extract_pre_html(fetch_tablature(url))
+        return True
+    except (OSError, ValueError, RuntimeError):
+        return False
+
+
 def preserved_chart_comments(chart_path: Path) -> list[str]:
     if not chart_path.exists():
         return []

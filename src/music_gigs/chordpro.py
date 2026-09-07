@@ -178,6 +178,67 @@ def chordpro_to_structured(song: ChordProSong) -> list[dict[str, Any]]:
     return structured
 
 
+_HINT_WORDS = 10
+
+
+def _word_hint(text: str, *, from_end: bool = False) -> str:
+    words = text.split()
+    if not words:
+        return ""
+    if from_end:
+        return " ".join(words[-_HINT_WORDS:])
+    return " ".join(words[:_HINT_WORDS])
+
+
+def section_outline_from_structured(structured: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Compact per-section summary for instrumentalists (chords, hints, notes)."""
+    outline: list[dict[str, Any]] = []
+
+    for section in structured:
+        section_type = section["type"]
+        if section_type == "comment":
+            continue
+
+        lyrics: list[str] = []
+        chord_seq: list[str] = []
+        seen_chords: set[str] = set()
+        notes: list[str] = []
+
+        for block in section.get("blocks", []):
+            kind = block.get("kind")
+            if kind == "lyric":
+                lyrics.append(block["lyrics"])
+                for entry in block.get("chords", []):
+                    chord = entry["chord"]
+                    if chord not in seen_chords:
+                        seen_chords.add(chord)
+                        chord_seq.append(chord)
+            elif kind == "note":
+                text = block["text"]
+                notes.append(text)
+                if section_type in {"verse", "chorus", "bridge"}:
+                    lyrics.append(text)
+            elif kind in {"tab", "abc"}:
+                label = block.get("label") or kind
+                first_line = block.get("text", "").splitlines()[0] if block.get("text") else ""
+                notes.append(f"{label}: {first_line}" if first_line else label)
+
+        full_lyrics = " ".join(lyrics).strip()
+        word_count = len(full_lyrics.split())
+        outline.append(
+            {
+                "type": section_type,
+                "label": section.get("label", ""),
+                "chords": chord_seq,
+                "start": _word_hint(full_lyrics),
+                "end": _word_hint(full_lyrics, from_end=True) if word_count > _HINT_WORDS else "",
+                "notes": notes,
+            }
+        )
+
+    return outline
+
+
 def _render_lyric_line(
     line: str,
     song_key: str = "C",

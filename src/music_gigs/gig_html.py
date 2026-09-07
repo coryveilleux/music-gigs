@@ -1,11 +1,18 @@
 from __future__ import annotations
 
+import base64
+import html
 import json
 from pathlib import Path
 
 import yaml
 
-from music_gigs.chordpro import chordpro_to_structured, parse_chordpro
+from music_gigs.chordpro import (
+    chordpro_to_structured,
+    parse_chordpro,
+    render_chordpro_html,
+    section_outline_from_structured,
+)
 from music_gigs.loader import load_band_config
 from music_gigs.slug import slugify
 
@@ -37,6 +44,7 @@ def catalog_by_slug(band_dir: Path) -> dict[str, dict]:
             "key": song.get("key") or "",
             "original_artist": song.get("original_artist") or "",
             "notes": song.get("notes") or "",
+            "duration_seconds": song.get("duration_seconds"),
         }
     return result
 
@@ -61,6 +69,13 @@ def build_gig_data(band_dir: Path, set_path: Path) -> dict:
             title = parsed.metadata.get("title") or meta.get("title") or slug
             key = parsed.metadata.get("key") or meta.get("key") or ""
             artist = parsed.metadata.get("artist") or meta.get("original_artist") or ""
+            tempo_raw = parsed.metadata.get("tempo", "")
+            tempo = int(tempo_raw) if str(tempo_raw).isdigit() else None
+            duration = meta.get("duration_seconds")
+            if not duration:
+                duration_raw = parsed.metadata.get("duration", "")
+                duration = int(duration_raw) if str(duration_raw).isdigit() else None
+            structured = chordpro_to_structured(parsed)
 
             song_index += 1
             song_obj = {
@@ -70,7 +85,11 @@ def build_gig_data(band_dir: Path, set_path: Path) -> dict:
                 "key": key,
                 "set": set_number,
                 "number": song_index,
-                "sections": chordpro_to_structured(parsed),
+                "tempo": tempo,
+                "duration_seconds": duration,
+                "sections": structured,
+                "outline": section_outline_from_structured(structured),
+                "body_html": render_chordpro_html(parsed),
             }
             set_songs.append(song_obj)
             all_songs.append(song_obj)
@@ -87,9 +106,76 @@ def build_gig_data(band_dir: Path, set_path: Path) -> dict:
     }
 
 
+def _gig_meta_text(gig_data: dict) -> str:
+    return " · ".join(
+        part for part in [gig_data.get("gig"), gig_data.get("date"), gig_data.get("venue")] if part
+    )
+
+
+def _static_song_list_html(gig_data: dict) -> str:
+    parts: list[str] = []
+    for set_info in gig_data["sets"]:
+        parts.append(
+            f'<div class="set-header" id="set-{set_info["number"]}">Set {set_info["number"]}</div>'
+        )
+        for song in set_info["songs"]:
+            key_part = (
+                f'<span class="key">{html.escape(song["key"])}</span>' if song.get("key") else ""
+            )
+            parts.append(
+                f'<a class="song-link" href="#song-{html.escape(song["slug"])}">'
+                f'<span class="num">{song["number"]}.</span>{html.escape(song["title"])}'
+                f"{key_part}</a>"
+            )
+    return "\n".join(parts)
+
+
+def _static_charts_html(gig_data: dict) -> str:
+    parts: list[str] = []
+    for song in gig_data["songs"]:
+        artist_part = f' · {html.escape(song["artist"])}' if song.get("artist") else ""
+        parts.append(
+            f'<article class="static-song" id="song-{html.escape(song["slug"])}">'
+            f'<div class="song-header">'
+            f'<h1>{song["number"]}. {html.escape(song["title"])}</h1>'
+            f'<p class="artist">Set {song["set"]}{artist_part}</p>'
+            f"</div>"
+            f'{song.get("body_html", "")}'
+            f"</article>"
+        )
+    return "\n".join(parts)
+
+
+def _gig_payload_for_js(gig_data: dict) -> dict:
+    def strip_song(song: dict) -> dict:
+        return {key: value for key, value in song.items() if key != "body_html"}
+
+    return {
+        "band": gig_data["band"],
+        "gig": gig_data["gig"],
+        "date": gig_data["date"],
+        "venue": gig_data["venue"],
+        "sets": [
+            {"number": set_info["number"], "songs": [strip_song(song) for song in set_info["songs"]]}
+            for set_info in gig_data["sets"]
+        ],
+        "songs": [strip_song(song) for song in gig_data["songs"]],
+    }
+
+
+def html_to_data_uri(html_bytes: bytes) -> str:
+    """Encode HTML for opening in Safari via a data: URI (e.g. Universal Clipboard)."""
+    encoded = base64.b64encode(html_bytes).decode("ascii")
+    return f"data:text/html;charset=utf-8;base64,{encoded}"
+
+
 def render_gig_html(gig_data: dict) -> str:
-    payload = json.dumps(gig_data, ensure_ascii=False)
+    payload = json.dumps(_gig_payload_for_js(gig_data), ensure_ascii=False)
     payload = payload.replace("</", "<\\/")
+    band_name = html.escape(gig_data["band"])
+    gig_meta = html.escape(_gig_meta_text(gig_data))
+    static_list = _static_song_list_html(gig_data)
+    static_charts = _static_charts_html(gig_data)
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -235,6 +321,54 @@ def render_gig_html(gig_data: dict) -> str:
       font-size: 0.95rem; line-height: 1.35; color: #ddd;
     }}
     pre.abc {{ border-color: #445; }}
+    .performance-bar {{
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      margin-bottom: 1rem; padding: 0.75rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    }}
+    .perf-group {{
+      display: flex; gap: 0.35rem; flex: 1 1 auto; min-width: 0;
+    }}
+    .perf-btn {{
+      flex: 1; min-height: var(--tap); padding: 0.5rem 0.65rem;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: #252525; color: var(--text); font-size: 0.9rem; cursor: pointer;
+    }}
+    .perf-btn.active {{
+      background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600;
+    }}
+    .perf-btn.scroll-btn.active {{
+      background: #3d7a3d; color: #fff; border-color: #3d7a3d;
+    }}
+    .scroll-hint {{
+      width: 100%; font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem;
+    }}
+    .chart-body {{ margin-top: 0.25rem; }}
+    .outline-section {{
+      margin-bottom: 1rem; padding: 0.85rem 1rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    }}
+    .outline-section .section-label {{ margin-top: 0; }}
+    .outline-chords {{
+      font-family: "Courier New", Courier, monospace;
+      color: var(--accent); font-weight: 700; font-size: 1.05rem;
+      margin: 0.35rem 0 0.5rem;
+    }}
+    .outline-hint {{
+      font-size: 0.95rem; line-height: 1.45; margin: 0.35rem 0;
+      color: var(--text);
+    }}
+    .outline-hint .hint-label {{
+      color: var(--muted); font-size: 0.8rem; text-transform: uppercase;
+      letter-spacing: 0.04em; margin-right: 0.35rem;
+    }}
+    #static-charts {{ margin-top: 2rem; }}
+    #static-charts .static-song {{
+      padding: 2rem 0;
+      border-top: 1px solid var(--border);
+    }}
+    #static-charts .static-song:first-child {{ border-top: none; }}
+    html.js #static-charts {{ display: none; }}
   </style>
 </head>
 <body>
@@ -246,24 +380,29 @@ def render_gig_html(gig_data: dict) -> str:
 
   <main id="app">
     <div id="list-view">
-      <h1 id="band-name"></h1>
-      <p class="meta" id="gig-meta"></p>
+      <h1 id="band-name">{band_name}</h1>
+      <p class="meta" id="gig-meta">{gig_meta}</p>
       <div class="search-wrap">
         <input class="search" id="search" type="search" placeholder="Search songs..." autocomplete="off" enterkeyhint="search">
         <div class="search-suggestions" id="search-suggestions"></div>
       </div>
-      <div id="song-list"></div>
+      <div id="song-list">{static_list}</div>
     </div>
     <div id="song-view" class="hidden"></div>
   </main>
 
+  <section id="static-charts" aria-label="Charts">
+    {static_charts}
+  </section>
+
   <div id="nav-bottom" class="nav-bar nav-bottom hidden">
-    <button type="button" id="btn-top">Top</button>
+    <button type="button" id="btn-scroll">▶ Scroll</button>
     <button type="button" id="btn-jump-set">This set</button>
     <button type="button" id="btn-next-bottom">Next ▶</button>
   </div>
 
   <script>
+    document.documentElement.classList.add("js");
     const GIG = {payload};
 
     const navTop = document.getElementById("nav-top");
@@ -286,6 +425,11 @@ def render_gig_html(gig_data: dict) -> str:
     const transposeOffsets = {{}};
     let showNashville = false;
     let currentSongSlug = null;
+    let chartView = "full";
+    let chartZoom = "normal";
+    let autoScrollActive = false;
+    let scrollRaf = null;
+    let scrollTouchListener = null;
 
     function esc(s) {{
       return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
@@ -415,6 +559,155 @@ def render_gig_html(gig_data: dict) -> str:
       return html;
     }}
 
+    function renderOutline(outline, key, transpose, showNums) {{
+      if (!outline || !outline.length) {{
+        return '<p class="note">No section breakdown available for this chart.</p>';
+      }}
+      return outline.map(section => {{
+        const title = sectionTitle(section.type, section.label);
+        const chords = (section.chords || []).map(chord => {{
+          const transposed = transposeChord(chord, transpose);
+          if (!showNums) return transposed;
+          const numeral = chordToNashville(transposed, key);
+          return numeral ? `${{transposed}} (${{numeral}})` : transposed;
+        }}).join(" · ") || "—";
+        const notes = (section.notes || []).map(note =>
+          `<p class="note">${{esc(note)}}</p>`
+        ).join("");
+        const start = section.start
+          ? `<p class="outline-hint"><span class="hint-label">Starts</span>${{esc(section.start)}}…</p>`
+          : "";
+        const end = section.end
+          ? `<p class="outline-hint"><span class="hint-label">Ends</span>…${{esc(section.end)}}</p>`
+          : "";
+        return `<article class="outline-section">` +
+          `<h3 class="section-label">${{esc(title)}}</h3>` +
+          `<p class="outline-chords">${{esc(chords)}}</p>` +
+          notes + start + end +
+          `</article>`;
+      }}).join("");
+    }}
+
+    function countLyricLines(sections) {{
+      let count = 0;
+      for (const section of sections) {{
+        for (const block of section.blocks || []) {{
+          if (block.kind === "lyric") count++;
+        }}
+      }}
+      return count;
+    }}
+
+    function formatDuration(seconds) {{
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.round(seconds % 60);
+      return `${{mins}}:${{String(secs).padStart(2, "0")}}`;
+    }}
+
+    function estimateScrollDuration(song) {{
+      if (song.duration_seconds) return song.duration_seconds;
+      if (song.tempo) {{
+        const lines = countLyricLines(song.sections);
+        const beatsPerLine = 4;
+        return Math.max(60, lines * beatsPerLine * (60 / song.tempo));
+      }}
+      return 180;
+    }}
+
+    function scrollHintText(song) {{
+      const duration = estimateScrollDuration(song);
+      const parts = [`~${{formatDuration(duration)}}`];
+      if (song.tempo) parts.push(`${{song.tempo}} BPM`);
+      else if (!song.duration_seconds) parts.push("estimated");
+      return parts.join(" · ");
+    }}
+
+    function stopAutoScroll() {{
+      if (scrollRaf) {{
+        cancelAnimationFrame(scrollRaf);
+        scrollRaf = null;
+      }}
+      autoScrollActive = false;
+      updateScrollButton();
+    }}
+
+    function updateScrollButton() {{
+      const btn = document.getElementById("btn-scroll");
+      if (!btn) return;
+      btn.textContent = autoScrollActive ? "⏸ Pause" : "▶ Scroll";
+      btn.classList.toggle("primary", autoScrollActive);
+    }}
+
+    function attachScrollTouchPause() {{
+      if (scrollTouchListener) return;
+      scrollTouchListener = () => {{
+        if (autoScrollActive) stopAutoScroll();
+      }};
+      window.addEventListener("touchstart", scrollTouchListener, {{ passive: true }});
+      window.addEventListener("wheel", scrollTouchListener, {{ passive: true }});
+    }}
+
+    function startAutoScroll(song) {{
+      stopAutoScroll();
+      const body = document.getElementById("chart-body");
+      if (!body) return;
+      const bodyTop = body.getBoundingClientRect().top + window.scrollY;
+      const bodyBottom = bodyTop + body.offsetHeight;
+      const viewportBottom = window.scrollY + window.innerHeight - 72;
+      const distance = Math.max(0, bodyBottom - viewportBottom);
+      if (distance <= 0) return;
+
+      const startY = window.scrollY;
+      const durationMs = estimateScrollDuration(song) * 1000;
+      const started = performance.now();
+      autoScrollActive = true;
+      updateScrollButton();
+
+      function tick(now) {{
+        if (!autoScrollActive) return;
+        const elapsed = now - started;
+        const progress = Math.min(elapsed / durationMs, 1);
+        window.scrollTo(0, startY + distance * progress);
+        if (progress < 1) {{
+          scrollRaf = requestAnimationFrame(tick);
+        }} else {{
+          stopAutoScroll();
+        }}
+      }}
+      scrollRaf = requestAnimationFrame(tick);
+    }}
+
+    function toggleAutoScroll() {{
+      const song = currentSongSlug ? songBySlug(currentSongSlug) : null;
+      if (!song) return;
+      if (autoScrollActive) {{
+        stopAutoScroll();
+      }} else {{
+        startAutoScroll(song);
+      }}
+    }}
+
+    function applyChartZoom() {{
+      const body = document.getElementById("chart-body");
+      if (!body) return;
+      body.style.zoom = "";
+      if (chartZoom !== "fit" || chartView !== "full") return;
+      requestAnimationFrame(() => {{
+        const available = window.innerHeight - 220;
+        const natural = body.scrollHeight;
+        if (natural <= 0) return;
+        const scale = Math.min(1, available / natural);
+        body.style.zoom = String(scale);
+      }});
+    }}
+
+    function renderChartContent(song, keyDisplay, transpose) {{
+      if (chartView === "outline") {{
+        return renderOutline(song.outline, keyDisplay, transpose, showNashville);
+      }}
+      return renderSections(song.sections, keyDisplay, transpose, showNashville);
+    }}
+
     function displayKey(song, transpose) {{
       return transposeChord(song.key, transpose);
     }}
@@ -474,6 +767,7 @@ def render_gig_html(gig_data: dict) -> str:
     }}
 
     function showList(anchorSet) {{
+      stopAutoScroll();
       clearSearch();
       listView.classList.remove("hidden");
       songView.classList.add("hidden");
@@ -500,6 +794,7 @@ def render_gig_html(gig_data: dict) -> str:
     function renderSong(slug) {{
       const song = songBySlug(slug);
       if (!song) {{ showList(); return; }}
+      stopAutoScroll();
       clearSearch();
       currentSongSlug = slug;
       const transpose = transposeOffsets[slug] || 0;
@@ -521,7 +816,20 @@ def render_gig_html(gig_data: dict) -> str:
         `<button type="button" id="tp-up" title="Up half step">+</button>` +
         `<label class="nashville"><input type="checkbox" id="tp-nashville" ${{showNashville ? "checked" : ""}}> Nashville #</label>` +
         `</div>` +
-        renderSections(song.sections, keyDisplay, transpose, showNashville);
+        `<div class="performance-bar">` +
+        `<div class="perf-group">` +
+        `<button type="button" class="perf-btn ${{chartView === "full" ? "active" : ""}}" id="view-full">Full</button>` +
+        `<button type="button" class="perf-btn ${{chartView === "outline" ? "active" : ""}}" id="view-outline">Structure</button>` +
+        `</div>` +
+        `<div class="perf-group">` +
+        `<button type="button" class="perf-btn ${{chartZoom === "normal" ? "active" : ""}}" id="zoom-normal">Normal</button>` +
+        `<button type="button" class="perf-btn ${{chartZoom === "fit" ? "active" : ""}}" id="zoom-fit">Fit page</button>` +
+        `</div>` +
+        `<p class="scroll-hint">Auto scroll: ${{esc(scrollHintText(song))}}</p>` +
+        `</div>` +
+        `<div id="chart-body" class="chart-body">` +
+        renderChartContent(song, keyDisplay, transpose) +
+        `</div>`;
       document.getElementById("tp-down").onclick = () => {{
         transposeOffsets[slug] = (transposeOffsets[slug] || 0) - 1;
         renderSong(slug);
@@ -538,6 +846,27 @@ def render_gig_html(gig_data: dict) -> str:
         showNashville = e.target.checked;
         renderSong(slug);
       }};
+      document.getElementById("view-full").onclick = () => {{
+        chartView = "full";
+        renderSong(slug);
+      }};
+      document.getElementById("view-outline").onclick = () => {{
+        chartView = "outline";
+        chartZoom = "normal";
+        renderSong(slug);
+      }};
+      document.getElementById("zoom-normal").onclick = () => {{
+        chartZoom = "normal";
+        renderSong(slug);
+      }};
+      document.getElementById("zoom-fit").onclick = () => {{
+        chartZoom = "fit";
+        chartView = "full";
+        renderSong(slug);
+      }};
+      updateScrollButton();
+      applyChartZoom();
+      attachScrollTouchPause();
       window.scrollTo(0, 0);
     }}
 
@@ -574,8 +903,8 @@ def render_gig_html(gig_data: dict) -> str:
     document.getElementById("btn-prev").onclick = goPrev;
     document.getElementById("btn-next").onclick = goNext;
     document.getElementById("btn-next-bottom").onclick = goNext;
+    document.getElementById("btn-scroll").onclick = toggleAutoScroll;
     document.getElementById("btn-setlist").onclick = () => {{ location.hash = "#/"; }};
-    document.getElementById("btn-top").onclick = () => {{ location.hash = "#/"; }};
     document.getElementById("btn-jump-set").onclick = () => {{
       const hash = location.hash;
       if (!hash.includes("song/")) return;

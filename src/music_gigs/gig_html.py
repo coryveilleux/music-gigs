@@ -9,7 +9,9 @@ import yaml
 
 from music_gigs.chordpro import (
     chordpro_to_structured,
+    chart_structure_warnings,
     parse_chordpro,
+    progression_hints_from_metadata,
     render_chordpro_html,
     section_outline_from_structured,
 )
@@ -76,6 +78,7 @@ def build_gig_data(band_dir: Path, set_path: Path) -> dict:
                 duration_raw = parsed.metadata.get("duration", "")
                 duration = int(duration_raw) if str(duration_raw).isdigit() else None
             structured = chordpro_to_structured(parsed)
+            progression_hints = progression_hints_from_metadata(parsed.metadata)
 
             song_index += 1
             song_obj = {
@@ -87,8 +90,10 @@ def build_gig_data(band_dir: Path, set_path: Path) -> dict:
                 "number": song_index,
                 "tempo": tempo,
                 "duration_seconds": duration,
+                "structure": parsed.metadata.get("structure", ""),
                 "sections": structured,
-                "outline": section_outline_from_structured(structured),
+                "outline": section_outline_from_structured(structured, progression_hints),
+                "chart_warnings": chart_structure_warnings(parsed),
                 "body_html": render_chordpro_html(parsed),
             }
             set_songs.append(song_obj)
@@ -302,6 +307,13 @@ def render_gig_html(gig_data: dict) -> str:
       color: var(--accent);
       font-weight: 700;
     }}
+    .chord-track .chord-cue {{
+      color: #f5a742;
+      font-style: italic;
+      font-weight: 600;
+      font-size: 0.9em;
+      display: block;
+    }}
     .chord-track .nashville {{
       color: var(--muted);
       font-size: 0.85em;
@@ -314,6 +326,29 @@ def render_gig_html(gig_data: dict) -> str:
     }}
     .lyric-row.lyrics-only .lyrics {{ margin-top: 0; }}
     .note, .note-block .note {{ color: #ccc; font-style: italic; margin: 0.5rem 0; }}
+    .inline-direction {{
+      color: #f5a742; font-style: italic; font-size: 0.95rem;
+      margin: 0.35rem 0 0.15rem; padding-left: 0.5rem;
+      border-left: 3px solid #f5a742;
+    }}
+    .lyrics .inline-direction {{
+      display: inline;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      font-size: inherit;
+      font-weight: 600;
+    }}
+    .harmony, .harmony-line {{
+      color: #9fd4ff; font-weight: 600;
+      text-decoration: underline; text-decoration-color: #5aa8e8;
+      text-underline-offset: 0.15em;
+    }}
+    .harmony-line {{ margin: 0.35rem 0; font-style: italic; }}
+    .bars, .chord-line {{
+      font-family: "Courier New", Courier, monospace;
+      color: var(--accent); font-weight: 700; margin: 0.35rem 0;
+    }}
     pre.tab, pre.abc {{
       background: #0a0a0a; border: 1px solid var(--border);
       border-radius: 8px; padding: 0.75rem; overflow-x: auto;
@@ -353,6 +388,14 @@ def render_gig_html(gig_data: dict) -> str:
       font-family: "Courier New", Courier, monospace;
       color: var(--accent); font-weight: 700; font-size: 1.05rem;
       margin: 0.35rem 0 0.5rem;
+    }}
+    .outline-chord-compact {{
+      font-family: "Courier New", Courier, monospace;
+      color: var(--accent); font-weight: 700; font-size: 1.05rem;
+      margin: 0.15rem 0; line-height: 1.5;
+    }}
+    .outline-chord-compact .repeat {{
+      color: var(--muted); font-weight: 500; font-size: 0.9em;
     }}
     .outline-hint {{
       font-size: 0.95rem; line-height: 1.45; margin: 0.35rem 0;
@@ -498,12 +541,19 @@ def render_gig_html(gig_data: dict) -> str:
       return chars.join("").trimEnd();
     }}
 
+    function entryChordLineText(entry, transpose) {{
+      const parts = [];
+      if (entry.chord) parts.push(transposeChord(entry.chord, transpose));
+      if (entry.cue) parts.push(entry.cue);
+      return parts.join(" ");
+    }}
+
     function buildChordLine(lyrics, chords, transpose) {{
       if (!chords.length) return "";
       const items = chords.map(entry => [
         entry.pos,
-        transposeChord(entry.chord, transpose),
-      ]);
+        entryChordLineText(entry, transpose),
+      ]).filter(([, text]) => text);
       return writePositionedLine(lyrics, items);
     }}
 
@@ -513,45 +563,118 @@ def render_gig_html(gig_data: dict) -> str:
         return `<div class="chords">${{esc(chordLine)}}</div>`;
       }}
       const markers = chords.map(entry => {{
-        const chord = transposeChord(entry.chord, transpose);
-        const numeral = chordToNashville(chord, key);
+        const chord = entry.chord ? transposeChord(entry.chord, transpose) : "";
+        const cue = entry.cue || "";
+        const numeral = chord ? chordToNashville(chord, key) : "";
+        const chordHtml = chord ? `<span class="chord">${{esc(chord)}}</span>` : "";
+        const cueHtml = cue ? `<span class="chord-cue">${{esc(cue)}}</span>` : "";
         const numHtml = numeral
           ? `<span class="nashville" style="width:${{chord.length}}ch">${{esc(numeral)}}</span>`
           : "";
         return `<span class="chord-marker" style="left:${{entry.pos}}ch">` +
-          `<span class="chord">${{esc(chord)}}</span>${{numHtml}}</span>`;
+          `${{chordHtml}}${{cueHtml}}${{numHtml}}</span>`;
       }}).join("");
       return `<div class="chord-track">${{markers}}</div>`;
     }}
 
-    function sectionTitle(type, label) {{
-      let title = type.replace(/_/g, " ").replace(/\\b\\w/g, c => c.toUpperCase());
+    function sectionTitle(type, label, number) {{
+      let title = type.replace(/_/g, "-").split("-")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1)).join("-");
+      if (number) title += " " + number;
       if (label) title += " — " + label;
       return title;
+    }}
+
+    function renderLyricSegments(segments, fallbackLyrics) {{
+      const parts = segments && segments.length
+        ? segments
+        : [{{ text: fallbackLyrics || "", harmony: false, direction: false }}];
+      return parts.map(segment => {{
+        const text = esc(segment.text);
+        if (segment.harmony) return `<span class="harmony">${{text}}</span>`;
+        if (segment.direction) {{
+          const css = "inline-direction";
+          return segment.bold
+            ? `<span class="${{css}}"><strong>${{text}}</strong></span>`
+            : `<span class="${{css}}">${{text}}</span>`;
+        }}
+        return text;
+      }}).join("");
+    }}
+
+    function renderBlock(block, key, transpose, showNums) {{
+      if (block.kind === "lyric") {{
+        const chordHtml = renderChordTrack(
+          block.lyrics, block.chords || [], key, transpose, showNums
+        );
+        const lyricsHtml = renderLyricSegments(block.segments, block.lyrics);
+        return `<div class="lyric-row">` +
+          chordHtml +
+          `<div class="lyrics">${{lyricsHtml}}</div></div>`;
+      }}
+      if (block.kind === "note") {{
+        const css = block.inline ? "inline-direction" : "note";
+        return `<p class="${{css}}">${{esc(block.text)}}</p>`;
+      }}
+      if (block.kind === "harmony") {{
+        return `<p class="harmony-line">${{esc(block.text)}}</p>`;
+      }}
+      if (block.kind === "bars") {{
+        return `<p class="bars">${{esc(block.text)}}</p>`;
+      }}
+      if (block.kind === "chord_line") {{
+        const items = (block.chords || []).map(entry =>
+          esc(transposeChord(entry.chord, transpose))
+        ).join("  ");
+        return `<p class="chord-line">${{items}}</p>`;
+      }}
+      if (block.kind === "tab" || block.kind === "abc") {{
+        return `<h3 class="section-label">${{esc(block.label)}}</h3>` +
+          `<pre class="${{block.kind}}">${{esc(block.text)}}</pre>`;
+      }}
+      return "";
+    }}
+
+    function renderOutlineChords(section, key, transpose, showNums) {{
+      const compact = section.chord_compact || [];
+      if (compact.length) {{
+        return compact.map(row => {{
+          const chords = (row.chords || []).map(chord => {{
+            const transposed = transposeChord(chord, transpose);
+            if (!showNums) return transposed;
+            const numeral = chordToNashville(transposed, key);
+            return numeral ? `${{transposed}} (${{numeral}})` : transposed;
+          }}).join(" · ") || "—";
+          const repeat = row.repeat > 1
+            ? ` <span class="repeat">(×${{row.repeat}})</span>`
+            : "";
+          return `<p class="outline-chord-compact">${{esc(chords)}}${{repeat}}</p>`;
+        }}).join("");
+      }}
+      const chords = (section.chords || []).map(chord => {{
+        const transposed = transposeChord(chord, transpose);
+        if (!showNums) return transposed;
+        const numeral = chordToNashville(transposed, key);
+        return numeral ? `${{transposed}} (${{numeral}})` : transposed;
+      }}).join(" · ") || "—";
+      return `<p class="outline-chords">${{esc(chords)}}</p>`;
     }}
 
     function renderSections(sections, key, transpose, showNums) {{
       let html = "";
       for (const section of sections) {{
         const hasLabel = section.type !== "comment";
-        if (hasLabel && section.blocks.some(b => b.kind === "lyric" || b.kind === "note")) {{
-          html += `<h3 class="section-label">${{esc(sectionTitle(section.type, section.label))}}</h3>`;
+        const renderable = new Set(["lyric", "note", "harmony", "bars", "chord_line", "tab", "abc"]);
+        if (hasLabel && section.blocks.some(b => renderable.has(b.kind))) {{
+          html += `<h3 class="section-label">${{esc(sectionTitle(section.type, section.label, section.number))}}</h3>`;
         }}
         const blockClass = ["intro","outro"].includes(section.type) ? "note-block" : "lyric-block";
         let blockHtml = "";
         for (const block of section.blocks) {{
-          if (block.kind === "lyric") {{
-            const chordHtml = renderChordTrack(
-              block.lyrics, block.chords, key, transpose, showNums
-            );
-            blockHtml += `<div class="lyric-row">` +
-              chordHtml +
-              `<div class="lyrics">${{esc(block.lyrics)}}</div></div>`;
-          }} else if (block.kind === "note") {{
-            blockHtml += `<p class="note">${{esc(block.text)}}</p>`;
-          }} else if (block.kind === "tab" || block.kind === "abc") {{
-            html += `<h3 class="section-label">${{esc(block.label)}}</h3>`;
-            html += `<pre class="${{block.kind}}">${{esc(block.text)}}</pre>`;
+          if (block.kind === "tab" || block.kind === "abc") {{
+            html += renderBlock(block, key, transpose, showNums);
+          }} else {{
+            blockHtml += renderBlock(block, key, transpose, showNums);
           }}
         }}
         if (blockHtml) html += `<div class="${{blockClass}}">${{blockHtml}}</div>`;
@@ -564,13 +687,8 @@ def render_gig_html(gig_data: dict) -> str:
         return '<p class="note">No section breakdown available for this chart.</p>';
       }}
       return outline.map(section => {{
-        const title = sectionTitle(section.type, section.label);
-        const chords = (section.chords || []).map(chord => {{
-          const transposed = transposeChord(chord, transpose);
-          if (!showNums) return transposed;
-          const numeral = chordToNashville(transposed, key);
-          return numeral ? `${{transposed}} (${{numeral}})` : transposed;
-        }}).join(" · ") || "—";
+        const title = sectionTitle(section.type, section.label, section.number);
+        const chordHtml = renderOutlineChords(section, key, transpose, showNums);
         const notes = (section.notes || []).map(note =>
           `<p class="note">${{esc(note)}}</p>`
         ).join("");
@@ -582,7 +700,7 @@ def render_gig_html(gig_data: dict) -> str:
           : "";
         return `<article class="outline-section">` +
           `<h3 class="section-label">${{esc(title)}}</h3>` +
-          `<p class="outline-chords">${{esc(chords)}}</p>` +
+          chordHtml +
           notes + start + end +
           `</article>`;
       }}).join("");

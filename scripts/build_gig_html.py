@@ -45,6 +45,9 @@ def main() -> None:
 
     output = args.output or (band_dir / "gig.html")
     gig_data = build_gig_data(band_dir, set_path)
+    for song in gig_data["songs"]:
+        for warning in song.get("chart_warnings", []):
+            print(f"Warning: {warning}", file=sys.stderr)
     html = render_gig_html(gig_data)
     output.write_text(html, encoding="utf-8")
     print(f"Wrote {output} ({len(gig_data['songs'])} songs, {len(gig_data['sets'])} sets)")

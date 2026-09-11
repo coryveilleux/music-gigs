@@ -215,6 +215,24 @@ Well, maybe [D]so, but it could [*STOP] buy me a [A]boat
     assert "STOP" in html
 
 
+def test_chords_align_with_harmony_markup():
+    line = (
+        "But <<it could buy me a [D (bass and full band)]boat, "
+        "it could buy me a [G]truck to pull it>>"
+    )
+    lyrics, chords = _chord_positions(line)
+    assert lyrics == "But it could buy me a boat, it could buy me a truck to pull it"
+    d_pos = next(c["pos"] for c in chords if c["chord"] == "D")
+    g_pos = next(c["pos"] for c in chords if c["chord"] == "G")
+    assert lyrics[d_pos : d_pos + 4] == "boat"
+    assert lyrics[g_pos : g_pos + 5] == "truck"
+
+    keep_line = "I keep <<[D]hearing that money is the root of all evil>>"
+    keep_lyrics, keep_chords = _chord_positions(keep_line)
+    d_keep = keep_chords[0]["pos"]
+    assert keep_lyrics[d_keep : d_keep + 7] == "hearing"
+
+
 def test_inline_text_italic_directives():
     text = """{start_of_chorus}
 Well, maybe [D]so, but it could {ti: (STOP)} buy me a [A]boat

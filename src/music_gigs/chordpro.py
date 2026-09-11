@@ -168,7 +168,9 @@ def _parse_bracket_token(token: str) -> dict[str, str]:
 
 def _strip_lyric_markup(line: str) -> str:
     plain = _CHORD_RE.sub("", line)
-    plain = _HARMONY_RE.sub(lambda match: match.group(1), plain)
+    # Strip harmony delimiters but keep inner text (closed or not) so chord
+    # positions match rendered lyrics when chords sit inside <<...>>.
+    plain = plain.replace("<<", "").replace(">>", "")
     plain = _SEGMENT_MARKUP_RE.sub("", plain)
     return plain
 
@@ -852,17 +854,22 @@ def render_chordpro_html(song: ChordProSong) -> str:
             chunks.append(f'<p class="note">{html.escape(" ".join(lines))}</p>')
             continue
 
+        section_parts: list[str] = []
+
         if section_type in {"tab", "abc"} or section_type.startswith("tab:"):
             title = label or section_type
             body = html.escape("\n".join(lines))
             css_class = "tab" if "tab" in section_type else "abc"
-            chunks.append(f'<h3 class="section-label">{html.escape(title)}</h3>')
-            chunks.append(f'<pre class="{css_class}">{body}</pre>')
+            section_parts.append(f'<h3 class="section-label">{html.escape(title)}</h3>')
+            section_parts.append(f'<pre class="{css_class}">{body}</pre>')
+            chunks.append(
+                f'<section class="chart-section">{"".join(section_parts)}</section>'
+            )
             continue
 
         if section_type in {"intro", "outro", "bridge", "verse", "chorus"} or section_type:
             title = section_display_title(section_type, label, number)
-            chunks.append(f'<h3 class="section-label">{html.escape(title)}</h3>')
+            section_parts.append(f'<h3 class="section-label">{html.escape(title)}</h3>')
 
         block_class = "lyric-block"
         if section_type in {"intro", "outro"}:
@@ -878,6 +885,11 @@ def render_chordpro_html(song: ChordProSong) -> str:
                     line_html.append(rendered)
 
         if line_html:
-            chunks.append(f'<div class="{block_class}">{"".join(line_html)}</div>')
+            section_parts.append(f'<div class="{block_class}">{"".join(line_html)}</div>')
+
+        if section_parts:
+            chunks.append(
+                f'<section class="chart-section">{"".join(section_parts)}</section>'
+            )
 
     return "\n".join(chunks)

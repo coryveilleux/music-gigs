@@ -277,7 +277,14 @@ def render_gig_html(gig_data: dict) -> str:
     }}
     .section-label {{
       color: var(--accent); font-size: 0.95rem; text-transform: uppercase;
-      letter-spacing: 0.04em; margin: 1.25rem 0 0.5rem;
+      letter-spacing: 0.04em; margin: 0 0 0.65rem;
+    }}
+    .chart-section {{
+      margin-bottom: 2.25rem;
+    }}
+    .chart-section + .chart-section {{
+      padding-top: 1.1rem;
+      border-top: 1px solid var(--border);
     }}
     .lyric-row {{
       font-family: "Courier New", Courier, monospace;
@@ -663,21 +670,27 @@ def render_gig_html(gig_data: dict) -> str:
     function renderSections(sections, key, transpose, showNums) {{
       let html = "";
       for (const section of sections) {{
+        if (section.type === "comment") {{
+          for (const block of section.blocks) {{
+            html += renderBlock(block, key, transpose, showNums);
+          }}
+          continue;
+        }}
         const hasLabel = section.type !== "comment";
         const renderable = new Set(["lyric", "note", "harmony", "bars", "chord_line", "tab", "abc"]);
+        let sectionHtml = "";
         if (hasLabel && section.blocks.some(b => renderable.has(b.kind))) {{
-          html += `<h3 class="section-label">${{esc(sectionTitle(section.type, section.label, section.number))}}</h3>`;
+          sectionHtml += `<h3 class="section-label">${{esc(sectionTitle(section.type, section.label, section.number))}}</h3>`;
         }}
         const blockClass = ["intro","outro"].includes(section.type) ? "note-block" : "lyric-block";
         let blockHtml = "";
         for (const block of section.blocks) {{
-          if (block.kind === "tab" || block.kind === "abc") {{
-            html += renderBlock(block, key, transpose, showNums);
-          }} else {{
-            blockHtml += renderBlock(block, key, transpose, showNums);
-          }}
+          blockHtml += renderBlock(block, key, transpose, showNums);
         }}
-        if (blockHtml) html += `<div class="${{blockClass}}">${{blockHtml}}</div>`;
+        if (blockHtml) sectionHtml += `<div class="${{blockClass}}">${{blockHtml}}</div>`;
+        if (sectionHtml) {{
+          html += `<section class="chart-section">${{sectionHtml}}</section>`;
+        }}
       }}
       return html;
     }}

@@ -2,52 +2,66 @@
 {artist: Chris Janson}
 {key: D}
 {tempo: 77}
-{comment: Chart adapted from public chord sheets — key D, no capo}
 {comment: Structure: I V C V C B C}
 
+{comment: Blue underlined lines are harmonies}
+
 {start_of_intro}
-|D|
+{c: Acoustic, tremolo guitar, and stripped down drums - no bass}
+| D / / / | (x2)
 {end_of_intro}
 
 {start_of_verse}
+{c: Acoustic, tremolo guitar, and stripped down drums - no bass yet}
 I ain't [D]rich, but I damn sure wanna [G]be
 [D]Working like a dog all day, ain't working for [A]me
-I wish I had a [D]rich uncle that'd kick the bucket
-And that I was sitting on a [G]pile like Warren Buffett
-[D]I know everybody says money can't buy [A]happiness
+I wish I [D]had a rich uncle that'd kick the bucket
+And that I was [G]sitting on a pile like Warren Buffett
+[D]I know everybody says money [A]can't buy happiness
+{c: Stop on beat 1 after happiness}
 {end_of_verse}
 
 {start_of_chorus}
-But it could buy me a [D]boat, it could buy me a [G]truck to pull it
-It could buy me a [D]Yeti 110 iced down with some Silver [A]Bullets
-Yeah, I [D]know what they say, money can't buy every[G]thing
-Well, maybe [D]so, but it could buy me a [A]boat
+But <<it could buy me a [D (bass and full band)]boat, it could buy me a [G]truck to pull it>>
+<<It could buy me a [D]Yeti 110 iced down with some Silver [A]Bullets>>
+<<Yeah, [D]I know what they say, money [G]can't buy everything>>
+<<Well, maybe [D]so, [A (STOP)] but it could buy me a boat>>
 {end_of_chorus}
 
 {start_of_verse}
 They call me [D]redneck, white trash and blue [G]collar
 But I could [D]change all that if I had a couple million [A]dollars
-I keep [D]hearing that money is the root of all evil
-And you can't fit a [G]camel through the eye of a needle
-I'm sure that's probably [D]true, but it still sounds pretty [A]cool
+I keep <<[D]hearing that money is the root of all evil>>
+<<And you [G]can't fit a camel through the eye of a needle>>
+[D]I'm sure that's probably true, <<but it [A]still sounds pretty cool>>
 {end_of_verse}
 
 {start_of_chorus}
-'Cause it could buy me a [D]boat, it could buy me a [G]truck to pull it
-It could buy me a [D]Yeti 110 iced down with some Silver [A]Bullets
-Yeah, I [D]know what they say, money can't buy every[G]thing
-Well, maybe [D]so, but it could buy me a [A]boat
+<<'Cause it could buy me a [D]boat, it could buy me a [G]truck to pull it>>
+<<It could buy me a [D]Yeti 110 iced down with some Silver [A]Bullets>>
+<<Yeah, [D]I know what they say, money [G]can't buy everything>>
+<<Well, maybe [D]so, [A]but it could buy me a boat>>
 {end_of_chorus}
 
 {start_of_bridge}
-[D]To float down on the water with a [G]beer
-I hear the Powerball Lotto is a-sitting on a hundred mill
-Well, that would buy me a brand new [A]rod and reel
+<<[D]To float down on the water with a [G]beer>>
+<<I hear>> the Powerball Lotto is [A]a-sitting on a hundred mill
+<<Well, [G]that would buy me a brand new [A]rod and reel>>
+{c: Stop on beat 1 after reel}
 {end_of_bridge}
 
 {start_of_chorus}
+{c: Stripped down}
 And it could buy me a [D]boat, it could buy me a [G]truck to pull it
 It could buy me a [D]Yeti 110 iced down with some Silver [A]Bullets
-Yeah, I [D]know what they say, money can't buy every[G]thing
-Well, maybe [D]so, but it could buy me a [A]boat
+<<Yeah, I [D (full band)]know what they say, money can't buy every[G]thing>>
+<<Well, maybe [D]so, but it could buy me a [A]boat>>
+<<Yeah, I [D]know what they say, money can't buy every[G]thing>>
+<<Well, maybe [D]so, but it could buy me a [A]boat>>
 {end_of_chorus}
+
+{start_of_outro}
+{c: Full band 4 measures}
+| D / / / | G / / / | (x2)
+{c: End on hit on the D}
+{end_of_outro}

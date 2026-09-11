@@ -84,7 +84,8 @@ def import_song(
         return f"skip {slug}: not in songs.yaml"
 
     chart_path = band_dir / "charts" / f"{slug}.chopro"
-    if not is_chart_stub(chart_path):
+    force = getattr(import_song, "_force", False)
+    if not force and not is_chart_stub(chart_path):
         return f"skip {slug}: chart already filled in"
 
     source = sources.get(slug, {})
@@ -120,6 +121,7 @@ def main() -> None:
     parser.add_argument("--all", action="store_true", help="Import all stub charts that have URLs")
     parser.add_argument("--slug", action="append", help="Import specific slug(s) only")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be imported")
+    parser.add_argument("--force", action="store_true", help="Overwrite existing charts")
     parser.add_argument(
         "--discover-urls",
         action="store_true",
@@ -148,6 +150,8 @@ def main() -> None:
             print(f"{pending} stub charts remaining ({pending} without URLs)")
             return
         targets = with_urls
+
+    import_song._force = args.force
 
     limit = len(targets) if args.all else args.batch_size
     imported = 0

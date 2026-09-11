@@ -111,46 +111,26 @@ def lines_to_chordpro(
     source_url: str,
     transpose_semitones: int = 0,
     extra_comments: list[str] | None = None,
+    add_structure_comment: bool = True,
 ) -> str:
+    from music_gigs.chart_sections import (
+        cleanup_import_lines,
+        infer_sections,
+        structure_outline,
+    )
+
     if not lines:
         raise ValueError("No chord/lyric lines extracted")
 
-    metadata_end = 0
-    for index, line in enumerate(lines[:12]):
-        if _INLINE_CHORD_RE.search(line) or _SECTION_RE.match(line):
-            metadata_end = index
-            break
-    else:
-        metadata_end = min(5, len(lines))
+    cleaned = cleanup_import_lines(lines, title=title, artist=artist)
+    if not cleaned:
+        raise ValueError("No chord/lyric lines after cleanup")
 
-    body_lines = lines[metadata_end:]
-    sections: list[tuple[str, list[str]]] = []
-    current_type = "verse"
-    current_lines: list[str] = []
-
-    def flush() -> None:
-        nonlocal current_lines
-        if current_lines:
-            sections.append((current_type, current_lines))
-            current_lines = []
-
-    for line in body_lines:
-        section_match = _SECTION_RE.match(line)
-        if section_match:
-            flush()
-            current_type = _section_type(section_match.group(1))
-            continue
-
-        if line.startswith("|") and _INLINE_CHORD_RE.search(line):
-            current_lines.append(_transpose_line(line, transpose_semitones))
-            continue
-
-        if _INLINE_CHORD_RE.search(line) or any(ch.isalpha() for ch in line):
-            current_lines.append(_transpose_line(line, transpose_semitones))
-
-    flush()
-    if not sections:
-        sections = [("verse", [_transpose_line(line, transpose_semitones) for line in body_lines])]
+    sections = infer_sections(cleaned)
+    transposed = [
+        (section_type, [_transpose_line(line, transpose_semitones) for line in section_lines])
+        for section_type, section_lines in sections
+    ]
 
     output: list[str] = [
         f"{{title: {title}}}",
@@ -159,10 +139,20 @@ def lines_to_chordpro(
         f"{{comment: Imported from CountryTabs — verify key and arrangement}}",
         f"{{comment: Source: {source_url}}}",
     ]
-    for comment in extra_comments or []:
+    preserved = {
+        comment.strip()
+        for comment in (extra_comments or [])
+        if comment.strip() and not comment.lower().startswith("structure:")
+    }
+    for comment in preserved:
         output.append(f"{{comment: {comment}}}")
 
-    for section_type, section_lines in sections:
+    if add_structure_comment:
+        outline = structure_outline(transposed)
+        if outline:
+            output.append(f"{{comment: Structure: {outline}}}")
+
+    for section_type, section_lines in transposed:
         output.append("")
         output.append(f"{{start_of_{section_type}}}")
         output.extend(section_lines)
@@ -179,6 +169,7 @@ def import_tablature_to_chordpro(
     key: str,
     source_key: str | None = None,
     extra_comments: list[str] | None = None,
+    add_structure_comment: bool = True,
 ) -> str:
     page_html = fetch_tablature(url)
     pre_html = extract_pre_html(page_html)
@@ -194,6 +185,7 @@ def import_tablature_to_chordpro(
         source_url=url,
         transpose_semitones=semitones,
         extra_comments=extra_comments,
+        add_structure_comment=add_structure_comment,
     )
 
 

@@ -108,6 +108,38 @@ uv run scripts/build_gig_html.py BailMoneyBand sets/pilot-gig.yaml -o BailMoneyB
 
 Features: numbered set list, search, transpose, Nashville numbers, **Structure** view (chords + lyric anchors per section), **Fit page** zoom, and **auto scroll** timed from song duration or `{tempo: N}` in the chart.
 
+### Bulk chart import and restructure
+
+Charts are imported from [CountryTabs](http://www.countrytabs.com/) into `.chopro` files. After import, many songs land as **one big section** — fine for reference, but not for adding gig notes section-by-section like Buy Me a Boat.
+
+**1. Import** (first time or new songs in catalog):
+
+```bash
+uv run scripts/import_charts.py BailMoneyBand --all
+```
+
+**2. Restructure** — re-fetch from CountryTabs, split into intro/verse/chorus/bridge, add a `{comment: Structure: ...}` hint, and strip tab-staff junk. Skips charts you've finished (no “Imported from CountryTabs” line, or harmonies added):
+
+```bash
+# All songs on a gig setlist (skips Buy Me a Boat and other finished charts)
+uv run scripts/restructure_charts.py BailMoneyBand \
+  --set sets/lilac-hedge-farm-2026-09-12.yaml
+
+# One song, overwrite even if already sectioned
+uv run scripts/restructure_charts.py BailMoneyBand --slug folsom --force
+```
+
+Then open each chart and add your `{c: ...}` performance notes — chords and section breaks are already there.
+
+**Already hand-edited charts** (Buy Me a Boat, I Never Lie, Gimme 3 Steps, etc.) are left alone. Songs with bad CountryTabs URLs are skipped with a warning (fix the URL in `chart-sources.yaml`).
+
+**3. Rebuild the gig book** after chart changes:
+
+```bash
+uv run scripts/build_gig_html.py BailMoneyBand sets/lilac-hedge-farm-2026-09-12.yaml \
+  -o BailMoneyBand/gigs/lilac-hedge-farm-2026-09-12.html
+```
+
 ### Chart authoring (`.chopro`)
 
 Charts are mostly standard [ChordPro](https://www.chordpro.org/). If bandmates import your `.chopro` files into **Songbook Pro**, **OnSong**, **Chordly**, etc., stick to the portable subset below — unknown directives are usually ignored or shown as raw text.

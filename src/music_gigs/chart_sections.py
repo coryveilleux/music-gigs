@@ -84,13 +84,51 @@ def cleanup_import_lines(
     return cleaned
 
 
-def chart_content_matches(title: str, lines: list[str]) -> bool:
-    """Heuristic: imported lyrics should mention words from the song title."""
+_TITLE_STOPWORDS = frozenset(
+    {
+        "with",
+        "the",
+        "and",
+        "than",
+        "more",
+        "what",
+        "kind",
+        "from",
+        "that",
+        "this",
+        "your",
+    }
+)
+
+
+def chart_content_matches(title: str, lines: list[str], artist: str = "") -> bool:
+    """Heuristic: imported lyrics should mention distinctive title (and artist) words."""
     text = " ".join(lines).lower()
-    tokens = [word for word in re.findall(r"[a-z']{4,}", title.lower()) if word not in {"with", "the", "and"}]
+    if artist:
+        artist_tokens = [
+            word
+            for word in re.findall(r"[a-z']{3,}", artist.lower())
+            if word not in {"the", "and", "tribute"}
+        ]
+        if artist_tokens and any(token in text for token in artist_tokens[:2]):
+            title_tokens = [
+                word
+                for word in re.findall(r"[a-z']{4,}", title.lower())
+                if word not in _TITLE_STOPWORDS
+            ]
+            if not title_tokens:
+                return True
+            hits = sum(1 for token in title_tokens if token in text)
+            return hits >= max(1, len(title_tokens) - 1)
+    tokens = [
+        word
+        for word in re.findall(r"[a-z']{4,}", title.lower())
+        if word not in _TITLE_STOPWORDS
+    ]
     if not tokens:
         return True
-    return any(token in text for token in tokens)
+    hits = sum(1 for token in tokens if token in text)
+    return hits == len(tokens)
 
 
 def _logical_rows(lines: list[str]) -> list[list[str]]:

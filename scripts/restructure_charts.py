@@ -113,7 +113,7 @@ def restructure_slug(
 
     page = fetch_tablature(tab_url)
     lines = pre_html_to_lines(extract_pre_html(page))
-    if not chart_content_matches(song.title, lines):
+    if not chart_content_matches(song.title, lines, song.original_artist):
         return (
             f"skip {slug}: CountryTabs page does not look like “{song.title}” "
             f"(wrong URL?) — {tab_url}"

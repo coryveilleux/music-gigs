@@ -72,5 +72,6 @@ def test_chart_content_matches_title():
     assert chart_content_matches("More Than My Hometown", ["You've long been on the open road"]) is False
     assert chart_content_matches(
         "More Than My Hometown",
-        ["Baby, I could stay right here in this hometown forever"],
+        ["Recorded by Morgan Wallen", "hometown forever"],
+        "Morgan Wallen",
     )

@@ -3,17 +3,25 @@
 {key: A}
 {comment: Imported from CountryTabs — verify key and arrangement}
 {comment: Source: http://www.countrytabs.com/tablature/John_Denver/Country_Roads__Chord_17915/}
+{comment: Structure: V V C V C V C V}
 
 {start_of_verse}
+Matellmon did a great job tabbing this song, and the lyrics but
 John actually sang it in the key of [A]
 [A] [F#m]
 ALMOST HEAVEN, WEST VIRGINIA
 [E] [D] [A]
 BLUE RIDGE MOUNTAINS, SHENANDOAH RIVER
+{end_of_verse}
+
+{start_of_verse}
 [F#m]
 LIFE IS OLD THERE, OLDER THAN THE TREES
 [E] [D] [A]
 YOUNGER THAN THE MOUNTAINS, BLOWING LIKE [A] BREEZE
+{end_of_verse}
+
+{start_of_chorus}
 [A] [E]
 COUNTRY ROAD, TAKE ME HOME
 [F#m] [D]
@@ -22,6 +30,9 @@ TO THE PLACE, I BELONG
 WEST VIRGINIA, MOUNTAIN MOMMA
 [D] [A]
 TAKE ME HOME COUNTRY ROAD
+{end_of_chorus}
+
+{start_of_verse}
 [A] [F#m]
 ALL MY MEMORIES GATHER ROUND HER
 [E] [D] [A]
@@ -30,6 +41,9 @@ MINERS LADY, STRANGER TO BLUE WATER
 DARK AND DUSTY, PAINTED ON THE SKY
 [E] [D] [A]
 MISTY TASTE OF MOONSHINE, TEARDROP IN MY EYE
+{end_of_verse}
+
+{start_of_chorus}
 [A] [E]
 COUNTRY ROAD, TAKE ME HOME
 [F#m] [D]
@@ -38,6 +52,9 @@ TO THE PLACE, I BELONG
 WEST VIRGINIA, MOUNTAIN MOMMA
 [D] [A]
 TAKE ME HOME COUNTRY ROAD
+{end_of_chorus}
+
+{start_of_verse}
 [F#m] [E] [A]
 I HEAR HER VOICE, IN THE MORNING HOURS SHE CALLS ME
 [D] [A] [E]
@@ -46,6 +63,9 @@ THE RADIO REMINDS ME OF MY HOME FAR AWAY
 AND DRIVING DOWN THE ROAD I GET THE FEELING
 [A] [E] [E7]
 THAT I SHOULD HAVE BEE HOME YESTERDAY, YESTERDAY
+{end_of_verse}
+
+{start_of_chorus}
 [A] [E]
 COUNTRY ROAD, TAKE ME HOME
 [F#m] [D]
@@ -54,6 +74,9 @@ TO THE PLACE, I BELONG
 WEST VIRGINIA, MOUNTAIN MOMMA
 [D] [A]
 TAKE ME HOME COUNTRY ROAD
+{end_of_chorus}
+
+{start_of_verse}
 [E] [A]
 TAKE ME HOME, DOWN COUNTRY ROADS
 [E] [A]

@@ -3,13 +3,18 @@
 {key: D}
 {comment: Imported from CountryTabs — verify key and arrangement}
 {comment: Source: http://www.countrytabs.com/tablature/Johnny_Cash/Hey_Good_Lookin_Chord_65172/}
+{comment: Structure: V V C V V C V}
 
 {start_of_verse}
+HEY GOOD LOOKIN
 [C]
 Hey, hey, good lookin', whatcha got cookin'
 [D7] [G7] [C]
 How's about cookin' somethin' up with me?
 Hey, hey, sweet baby, don't you think maybe
+{end_of_verse}
+
+{start_of_verse}
 [D7] [G7] [C]
 We could find us a brand new recipe?
 [F] [C]
@@ -18,10 +23,16 @@ I got a hot rod Ford and a two dollar bill
 And I know a spot right over the hill
 [F] [C]
 There's soda pop and the dancin's free
+{end_of_verse}
+
+{start_of_chorus}
 [D7] [G7]
 So if you wanna have fun come along with me
 [C]
 Say, hey, good lookin', whatcha got cookin'
+{end_of_chorus}
+
+{start_of_verse}
 [D7] [G7] [C]
 How's about cookin' somethin' up with me?
 [C]
@@ -29,6 +40,9 @@ I'm free and ready so we can go steady
 [D7] [G7] [C]
 How's about savin' all your time for me?
 No more lookin', I know, I've been tooken
+{end_of_verse}
+
+{start_of_verse}
 [D7] [G7] [C]
 How's about keepin' steady company?
 [F] [C]
@@ -37,10 +51,16 @@ I'm gonna throw my date book over the fence
 And find me one for five or ten cents
 [F] [C]
 Ill keep it till it's covered with age
+{end_of_verse}
+
+{start_of_chorus}
 [D7] [G7]
 'Cause I'm writin' your name down on every page
 [C]
 Say hey, good lookin', whatcha got cookin'
+{end_of_chorus}
+
+{start_of_verse}
 [D7] [G7] [C]
 How's about cookin' somethin' up with me?
 {end_of_verse}

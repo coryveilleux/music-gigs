@@ -3,6 +3,7 @@
 {key: D}
 {comment: Imported from CountryTabs — verify key and arrangement}
 {comment: Source: http://www.countrytabs.com/tablature/Zach_Top/Sounds_Like_The_Radio_Chord_1234/}
+{comment: Structure: V V C V V C V V C V V V}
 
 {start_of_verse}
 [C] [C/B] [C/A] [C/G]
@@ -13,6 +14,9 @@ You've been sleepin in the rain
 From the dirty words and muddy cells
 [F] [G]
 Your clothes are soiled and stained.
+{end_of_verse}
+
+{start_of_verse}
 [C] [C/B] [C/A] [C/G]
 But the dirty words and muddy cells
 [F] [G]
@@ -21,6 +25,9 @@ Will soon be hid in shame
 So only stop to rest yourself
 [F] [G]
 Till you'll go off again.
+{end_of_verse}
+
+{start_of_chorus}
 [C] [F]
 So take off your thirsty boots
 [C] [F]
@@ -31,6 +38,9 @@ Your feet are hot and weary
 From a dusty mile
 [C] [F]
 And maybe I can make you laugh
+{end_of_chorus}
+
+{start_of_verse}
 [C] [F]
 Maybe I can try
 [C] [C/B] [C/A]
@@ -39,12 +49,18 @@ I'm just lookin' for the evening
 And the morning in your eyes.
 [C] [C/B] [C/A] [C/G]
 But tell me of the ones you saw
+{end_of_verse}
+
+{start_of_verse}
 [F] [C] [C/G]
 As far as you could see
 [C] [C/B] [C/A] [C/G]
 Across the plain from field to town
 [F] [G]
 [A]-marching to be free
+{end_of_verse}
+
+{start_of_chorus}
 [C] [C/B] [C/A] [C/G]
 And of the rusted prison gates
 [F] [G]
@@ -55,6 +71,9 @@ Like laughing children one by one
 They looked like you and me
 [C] [F]
 So take off your thirsty boots
+{end_of_chorus}
+
+{start_of_verse}
 [C] [F]
 And stay for awhile
 [C] [C/B] [C/A]
@@ -63,6 +82,9 @@ Your feet are hot and weary
 From a dusty mile
 [C] [F]
 And maybe I can make you laugh
+{end_of_verse}
+
+{start_of_verse}
 [C] [F]
 Maybe I can try
 [C] [C/B] [C/A]
@@ -71,6 +93,9 @@ I'm just lookin' for the evening
 And the morning in your eyes.
 [C] [C/B] [C/A] [C/G]
 I know you are no stranger down
+{end_of_verse}
+
+{start_of_chorus}
 [F] [C] [C/G]
 The crooked rainbow trails
 [C] [C/B] [C/A] [C/G]
@@ -81,6 +106,9 @@ Of slender shackled jails
 But the voices drift up from below
 [F] [G]
 As the walls they're being scaled
+{end_of_chorus}
+
+{start_of_verse}
 [C] [G] [C]
 All of this and more
 [F] [G]
@@ -89,6 +117,9 @@ Your song shall not be failed.
 So take off your thirsty boots
 [C] [F]
 And stay for awhile
+{end_of_verse}
+
+{start_of_verse}
 [C] [C/B] [C/A]
 Your feet are hot and weary
 [Dm] [G]
@@ -97,6 +128,9 @@ From a dusty mile
 And maybe I can make you laugh
 [C] [F]
 Maybe I can try
+{end_of_verse}
+
+{start_of_verse}
 [C] [C/B] [C/A]
 I'm just lookin' for the evening
 [Dm] [G] [C]

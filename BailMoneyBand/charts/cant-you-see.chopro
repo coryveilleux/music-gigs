@@ -3,44 +3,72 @@
 {key: D}
 {comment: Imported from CountryTabs — verify key and arrangement}
 {comment: Source: http://www.countrytabs.com/tablature/Marshall_Tucker_Band/Cant_You_See(corrected)_Chord_17129/}
+{comment: Structure: I V C V C V C V V V}
+
+{start_of_intro}
+[D]: 000232 [C]: 032010 [G]: 320033
+{end_of_intro}
 
 {start_of_verse}
-[D]: 000232 [C]: 032010 [G]: 320033
 [D] [C] [G]
 I'm gonna take a freight train, down at the station, I
 don't care where it goes
 [D] [C] [G]
 Gonna climb me a mountain, the highest mountain, Lord,
 Gonna jump off, nobody gonna know
+{end_of_verse}
+
+{start_of_chorus}
 [D] [C] [G]
 Can't you see, can't you see, what that woman, she been
 doin' to me
+{end_of_chorus}
+
+{start_of_verse}
 [D] [C] [G]
 Can't you see, can't you see, what that woman been doin' to
 me
+{end_of_verse}
+
+{start_of_chorus}
 [D] [C] [G]
 I'm gonna find me, a hole in the wall, gona crawl inside
 and die
+{end_of_chorus}
+
+{start_of_verse}
 [D] [C] [G]
 That lady now, mean ol' woman Lord, done told me goodbye
 [D] [C] [G]
 Can't you see, can't you see, what that woman she been
 doin' to me
+{end_of_verse}
+
+{start_of_chorus}
 [D] [C] [G]
 Can't you see, can't you see, what that woman been doin' to me
 [D] [C] [G]
 Gonna buy me a ticket now, as far as I can, ain'ta never
+{end_of_chorus}
+
+{start_of_verse}
 comin' back
 [D] [C] [G]
 Drivin' me Southbound, all the way to Georgia now, till the
 train run out of track
 [D] [C] [G]
 Can't you see, can't you see, what that woman, she been
+{end_of_verse}
+
+{start_of_verse}
 doin' to me
 [D] [C] [G]
 Can't you see, can't you see, what that woman been doin' to me
 [D] [C] [G]
 Can't you see, whoooaaa, can't you see, what that woman,
 Lord, been doing to me
+{end_of_verse}
+
+{start_of_verse}
 Repeat Chorus 3x
 {end_of_verse}

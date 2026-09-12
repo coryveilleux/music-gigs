@@ -3,13 +3,21 @@
 {key: D}
 {comment: Imported from CountryTabs — verify key and arrangement}
 {comment: Source: http://www.countrytabs.com/tablature/Zac_Brown_Band/Chicken_Fried_Chord_73239/}
+{comment: Structure: V S V C V C S V C C}
 
 {start_of_verse}
+Chicken Fried
+Written by Zac Brown & Wyatt Durrette
+Recorded by Zac Brown Band
+(Half Step Down Tuning)
 Intro.: |([G]) / / / |([G]) / / / |([D]) / / / |([D]) / / / |([C]) / / / |([C]) / / / |([G]) / ([D]) / |
 You know I like my ([G])chicken fried, and cold beer on a ([D])Friday night
 A pair of jeans that ([C])fit just right and the radio ([G])on ([D])
-Solo: |([G]) / / / |([G]) / / / |([D]) / / / |([D]) / / / |([C]) / / / |([C]) / / / |([G]) / ([D]) / |
 {end_of_verse}
+
+{start_of_solo}
+|([G]) / / / |([G]) / / / |([D]) / / / |([D]) / / / |([C]) / / / |([C]) / / / |([G]) / ([D]) / |
+{end_of_solo}
 
 {start_of_verse}
 Well I was ([G])raised underneath the ([D])shade of a Georgia ([C])pine
@@ -39,10 +47,13 @@ To a little bit of chicken ([G])fried, and cold beer on a ([D])Friday night
 A pair of jeans that ([C])fit just right and the radio ([G])up ([D])
 I like to see the ([G])sunrise, see the love in my ([D])woman's eyes
 Feel the touch of a ([C])precious child, and know a mother's ([G])love ([D])
-Solo: |([G]) / / / |([G]) / / / |([D]) / / / |([D]) / / / |([C]) / / / |([C]) / / / |([G]) / ([D]) / |
-|([G]) / / / |([G]) / / / |([D]) / / / |([D]) / / / |([C]) / / / |([C]) / / / |([G]) / ([D]) / |
-|([G]) / / / |([G]) / / / |([D]) / / / |([D]) / / / |([C]) / / / |([C]) / / / |([G]) / ([D]) / |
 {end_of_chorus}
+
+{start_of_solo}
+|([G]) / / / |([G]) / / / |([D]) / / / |([D]) / / / |([C]) / / / |([C]) / / / |([G]) / ([D]) / |
+|([G]) / / / |([G]) / / / |([D]) / / / |([D]) / / / |([C]) / / / |([C]) / / / |([G]) / ([D]) / |
+|([G]) / / / |([G]) / / / |([D]) / / / |([D]) / / / |([C]) / / / |([C]) / / / |([G]) / ([D]) / |
+{end_of_solo}
 
 {start_of_verse}
 I thank God ([G])for my life, and for the ([D])stars and stripes

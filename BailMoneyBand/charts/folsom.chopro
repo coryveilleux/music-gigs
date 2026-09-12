@@ -3,12 +3,13 @@
 {key: E}
 {comment: Imported from CountryTabs — verify key and arrangement}
 {comment: Source: http://www.countrytabs.com/tablature/Johnny_Cash/Folsom_Prison_Blues_(key_of_E)_Chord_9145/}
+{comment: Structure: I V V V V V}
+
+{start_of_intro}
+{c: I use this little lick in the beggining & end.}
+{end_of_intro}
 
 {start_of_verse}
-Johnny Cash - Folsom Prison Blues (Key of [E])
-By Mike Terrian - mike_terrian at yahoo.com
-I use this little lick in the beggining & end.
-|-------------2br-0-|
 [E]
 I hear the train a comin, It's rollin round the bend.
 I ain't seen the sunshine since, I don't know when.
@@ -16,17 +17,29 @@ I ain't seen the sunshine since, I don't know when.
 I'm stuck in Folsom Prison, And time keeps draggin on.
 [B7] [E]
 But that train keeps a rollin on down to San Antone.
+{end_of_verse}
+
+{start_of_verse}
 When I was just a baby, my mamma told me son.
 Always be a good boy don't ever play with guns.
 But I shot a man in Reno, Just to watch him die.
 When I hear that train a rollin, I hang my head and I cry.
+{end_of_verse}
+
+{start_of_verse}
 I bet there's rich folk eatin in a fancy dinin car.
 Probaly drinkin coffee and smokin big cigars.
 But I knew I had it comin, I know I can't be free.
 That train keeps a rollin, and that's what tortures me.
+{end_of_verse}
+
+{start_of_verse}
 If they freed me from this prison, If that railroad train was mine.
 I think that I would move a little farther down the line.
 Far from folsom prison, thats where I'd want to stay.
 And I'd let that lonesome whistle blow my blues away
-Play little lick
+{end_of_verse}
+
+{start_of_verse}
+{c: Play little lick}
 {end_of_verse}

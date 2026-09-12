@@ -3,12 +3,17 @@
 {key: A}
 {comment: Imported from CountryTabs — verify key and arrangement}
 {comment: Source: http://www.countrytabs.com/tablature/Merle_Haggard/I_Think_Ill_Just_Stay_Here_And_Drink_Chord_2889/}
+{comment: Structure: V V V V V V}
 
 {start_of_verse}
 [A] = x02220 [D] = xx0232
 [E] = 022100
+***********************************************************************
 [A] [D]
 Could be holding you tonight,
+{end_of_verse}
+
+{start_of_verse}
 [A]
 I could quit doing wrong, start doing right.
 [E]
@@ -17,6 +22,9 @@ But you don't care about what I think,
 Think I'll just stay here and drink.
 [D]
 Hey putting you down won't square the deal,
+{end_of_verse}
+
+{start_of_verse}
 [A]
 But at least you'll know the way I feel.
 [E]
@@ -25,6 +33,9 @@ Hey, take all the money in the bank,
 I think I'll just stay here and drink.
 [D]
 Hey listen close and you can hear
+{end_of_verse}
+
+{start_of_verse}
 [A]
 That loud jukebox playing in my ear.
 [E]
@@ -32,6 +43,9 @@ Ain't no woman gonna change the way I think,
 [A]
 I think I'll just stay here and drink.
 INSTRUMENTAL (same chords as verse)
+{end_of_verse}
+
+{start_of_verse}
 [D]
 Hey, hurtin' me now don't mean a thing,
 [A]
@@ -40,5 +54,8 @@ Since love ain't here I don't feel the pain.
 My mind ain't nothing but a total blank,
 [D]
 I think I'll just stay here and drink...yeah.
+{end_of_verse}
+
+{start_of_verse}
 INSTRUMENTAL (same chords as verse until end of song)
 {end_of_verse}

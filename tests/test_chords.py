@@ -20,6 +20,14 @@ def test_nashville_in_key_d():
     assert chord_to_nashville("G", "D") == "4"
 
 
+def test_parse_sharp_minor_chord():
+    from music_gigs.chordpro import _parse_bracket_token, _chord_positions
+
+    assert _parse_bracket_token("F#m") == {"chord": "F#m", "cue": ""}
+    _, chords = _chord_positions("to the [F#m]place I belong")
+    assert [entry["chord"] for entry in chords] == ["F#m"]
+
+
 def test_nashville_on_separate_line():
     from music_gigs.chordpro import (
         _build_chord_line,

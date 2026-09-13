@@ -25,18 +25,17 @@ _PROGRESSION_COMMENT_RE = re.compile(
     r"^progression(?:[_\s-]+([\w-]+))?:\s*(.+)$",
     re.I,
 )
+_CHORD_ROOT_RE = r"[A-G](?:[#b])?"
+_CHORD_SUFFIX_RE = r"(?:maj7|min7|m7|7|m|sus4|add9|dim|aug)?"
+_CHORD_NAME_BODY_RE = rf"{_CHORD_ROOT_RE}{_CHORD_SUFFIX_RE}"
 _CHORD_TOKEN_RE = re.compile(
-    r"[A-G](?:[#b]|maj7|min7|m7|7|m|sus4|add9|dim|aug)?(?:/[A-G][#b]?)?"
+    rf"{_CHORD_NAME_BODY_RE}(?:/{_CHORD_NAME_BODY_RE})?"
 )
-_CHORD_NAME_RE = re.compile(
-    r"^[A-G](?:[#b]|maj7|min7|m7|7|m|sus4|add9|dim|aug)?(?:/[A-G][#b]?)?$"
-)
+_CHORD_NAME_RE = re.compile(rf"^{_CHORD_NAME_BODY_RE}(?:/{_CHORD_NAME_BODY_RE})?$")
 _INLINE_CUE_ONLY_RE = re.compile(r"^\*(.+)$")
-_CHORD_WITH_CUE_RE = re.compile(
-    r"^([A-G](?:[#b]|maj7|min7|m7|7|m|sus4|add9|dim|aug)?(?:/[A-G][#b]?)?)\*(.+)$"
-)
+_CHORD_WITH_CUE_RE = re.compile(rf"^({_CHORD_NAME_BODY_RE}(?:/{_CHORD_NAME_BODY_RE})?)\*(.+)$")
 _CHORD_WITH_ANNOTATION_RE = re.compile(
-    r"^([A-G](?:[#b]|maj7|min7|m7|7|m|sus4|add9|dim|aug)?(?:/[A-G][#b]?)?)(?:\s+(.+))?$"
+    rf"^({_CHORD_NAME_BODY_RE}(?:/{_CHORD_NAME_BODY_RE})?)(?:\s+(.+))?$"
 )
 _SEGMENT_MARKUP_RE = re.compile(
     r"<<(?P<harmony>[^>]+)>>"
@@ -288,7 +287,7 @@ def _parse_section_line(line: str, section_type: str = "") -> list[dict[str, Any
         ]
 
     if section_type in _LYRIC_SECTION_TYPES:
-        text = line.strip()
+        text = line.rstrip()
         return [
             {
                 "kind": "lyric",
@@ -299,6 +298,34 @@ def _parse_section_line(line: str, section_type: str = "") -> list[dict[str, Any
         ]
 
     return [{"kind": "note", "text": line, "inline": False}]
+
+
+def _merge_chord_line_blocks(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Pair chord-only rows with the lyric line below (classic chord-sheet layout)."""
+    merged: list[dict[str, Any]] = []
+    index = 0
+    while index < len(blocks):
+        block = blocks[index]
+        if (
+            block.get("kind") == "chord_line"
+            and index + 1 < len(blocks)
+            and blocks[index + 1].get("kind") == "lyric"
+            and not blocks[index + 1].get("chords")
+        ):
+            lyric = blocks[index + 1]
+            merged.append(
+                {
+                    "kind": "lyric",
+                    "lyrics": lyric["lyrics"],
+                    "chords": block["chords"],
+                    "segments": lyric.get("segments") or _lyric_segments(lyric["lyrics"]),
+                }
+            )
+            index += 2
+            continue
+        merged.append(block)
+        index += 1
+    return merged
 
 
 def _write_positioned_line(lyric_plain: str, items: list[tuple[int, str]]) -> str:
@@ -453,6 +480,7 @@ def chordpro_to_structured(song: ChordProSong) -> list[dict[str, Any]]:
         else:
             for line in lines:
                 blocks.extend(_parse_section_line(line, section_type))
+            blocks = _merge_chord_line_blocks(blocks)
 
         progression_override = None
         content_blocks: list[dict[str, Any]] = []
@@ -875,14 +903,19 @@ def render_chordpro_html(song: ChordProSong) -> str:
         if section_type in {"intro", "outro"}:
             block_class = "note-block"
 
-        line_html = []
+        section_blocks: list[dict[str, Any]] = []
         for line in lines:
             for block in _parse_section_line(line, section_type):
                 if block["kind"] in {"tab", "abc"}:
                     continue
-                rendered = _render_block_html(block)
-                if rendered:
-                    line_html.append(rendered)
+                section_blocks.append(block)
+        section_blocks = _merge_chord_line_blocks(section_blocks)
+
+        line_html = []
+        for block in section_blocks:
+            rendered = _render_block_html(block)
+            if rendered:
+                line_html.append(rendered)
 
         if line_html:
             section_parts.append(f'<div class="{block_class}">{"".join(line_html)}</div>')

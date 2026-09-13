@@ -43,6 +43,28 @@ def test_chords_above_lyrics():
     assert html.index("Em") < html.index("And you met")
 
 
+def test_chord_row_above_lyric_line():
+    from music_gigs.chordpro import _build_chord_line
+
+    song = parse_chordpro(
+        """{start_of_verse}
+[A]              [F#m]
+  Almost Heaven, West Virginia
+{end_of_verse}
+"""
+    )
+    structured = chordpro_to_structured(song)
+    block = structured[0]["blocks"][0]
+    assert block["kind"] == "lyric"
+    assert block["lyrics"].startswith("  Almost")
+    chord_line = _build_chord_line(block["lyrics"], block["chords"], "A")
+    assert chord_line[0] == "A"
+    assert "F#m" in chord_line
+    html = render_chordpro_html(song)
+    assert "Almost Heaven" in html
+    assert "F#m" in html
+
+
 def test_detect_repeating_progression_buy_me_a_boat():
     root = Path(__file__).resolve().parents[1]
     chart = (root / "BailMoneyBand/charts/buy-me-a-boat.chopro").read_text(encoding="utf-8")

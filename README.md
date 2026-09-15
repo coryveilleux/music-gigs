@@ -106,7 +106,7 @@ BailMoneyBand/
 uv run scripts/build_gig_html.py BailMoneyBand sets/pilot-gig.yaml -o BailMoneyBand/gigs/pilot-gig.html
 ```
 
-Features: numbered set list, search, transpose, Nashville numbers, **Structure** view (chords + lyric anchors per section), **Fit page** zoom, and **auto scroll** timed from song duration or `{tempo: N}` in the chart.
+Features: numbered set list, search, transpose, Nashville numbers, **Structure** view (chords + lyric anchors per section), **Fit page** zoom, and **auto scroll** timed from track length (`duration_seconds` in `songs.yaml`), `{tempo: N}`, or per-chart scroll overrides (below).
 
 ### Bulk chart import and restructure
 
@@ -175,6 +175,8 @@ These work in **this project’s HTML gig book** only. Other software will not u
 | `{harmony: ...}`, `{harm: ...}`, `{bv: ...}` | Whole backing-vocal line |
 | `<<words>>` | Inline harmony highlight; open `<<` on one line and close `>>` on a later line to mark a multi-line backing part |
 | `\|C\| \|F\| \|G\|` | Bar notation for instrumental changes |
+| `{scroll_duration: 165}` | Auto-scroll time in seconds (overrides track length for scroll only) |
+| `{scroll_multiplier: 1.33}` | Scroll faster when &gt; 1 (divide base time by this); slower when &lt; 1 |
 | Chord-only lines (`[C]  [F]  [G]` with no lyrics) | Instrumental changes (portable as plain `[chord]` lines; spacing/extra features are ours) |
 
 **If only you use the gig book:** feel free to use the custom tags for harmonies and tighter inline layout.

@@ -31,6 +31,44 @@ def load_chart(band_dir: Path, slug: str) -> str:
     return chart_path.read_text(encoding="utf-8")
 
 
+def _parse_positive_int(value: object) -> int | None:
+    if value is None or value == "":
+        return None
+    text = str(value).strip()
+    if not text.isdigit():
+        return None
+    parsed = int(text)
+    return parsed if parsed > 0 else None
+
+
+def _parse_positive_float(value: object) -> float | None:
+    if value is None or value == "":
+        return None
+    try:
+        parsed = float(str(value).strip())
+    except ValueError:
+        return None
+    return parsed if parsed > 0 else None
+
+
+def _resolve_scroll_fields(
+    parsed_metadata: dict[str, str],
+    catalog_meta: dict,
+) -> tuple[int | None, float | None]:
+    """Return (scroll_duration_seconds, scroll_multiplier) for auto-scroll timing."""
+    scroll_duration = _parse_positive_int(catalog_meta.get("scroll_duration_seconds"))
+    chart_scroll = _parse_positive_int(parsed_metadata.get("scroll_duration"))
+    if chart_scroll is not None:
+        scroll_duration = chart_scroll
+
+    scroll_multiplier = _parse_positive_float(catalog_meta.get("scroll_multiplier"))
+    chart_multiplier = _parse_positive_float(parsed_metadata.get("scroll_multiplier"))
+    if chart_multiplier is not None:
+        scroll_multiplier = chart_multiplier
+
+    return scroll_duration, scroll_multiplier
+
+
 def catalog_by_slug(band_dir: Path) -> dict[str, dict]:
     songs_file = band_dir / "songs.yaml"
     if not songs_file.exists():
@@ -47,6 +85,8 @@ def catalog_by_slug(band_dir: Path) -> dict[str, dict]:
             "original_artist": song.get("original_artist") or "",
             "notes": song.get("notes") or "",
             "duration_seconds": song.get("duration_seconds"),
+            "scroll_duration_seconds": song.get("scroll_duration_seconds"),
+            "scroll_multiplier": song.get("scroll_multiplier"),
         }
     return result
 
@@ -77,6 +117,9 @@ def build_gig_data(band_dir: Path, set_path: Path) -> dict:
             if not duration:
                 duration_raw = parsed.metadata.get("duration", "")
                 duration = int(duration_raw) if str(duration_raw).isdigit() else None
+            scroll_duration, scroll_multiplier = _resolve_scroll_fields(
+                parsed.metadata, meta
+            )
             structured = chordpro_to_structured(parsed)
             progression_hints = progression_hints_from_metadata(parsed.metadata)
 
@@ -90,6 +133,8 @@ def build_gig_data(band_dir: Path, set_path: Path) -> dict:
                 "number": song_index,
                 "tempo": tempo,
                 "duration_seconds": duration,
+                "scroll_duration_seconds": scroll_duration,
+                "scroll_multiplier": scroll_multiplier,
                 "structure": parsed.metadata.get("structure", ""),
                 "sections": structured,
                 "outline": section_outline_from_structured(structured, progression_hints),
@@ -738,7 +783,7 @@ def render_gig_html(gig_data: dict) -> str:
       return `${{mins}}:${{String(secs).padStart(2, "0")}}`;
     }}
 
-    function estimateScrollDuration(song) {{
+    function baseScrollDuration(song) {{
       if (song.duration_seconds) return song.duration_seconds;
       if (song.tempo) {{
         const lines = countLyricLines(song.sections);
@@ -748,11 +793,28 @@ def render_gig_html(gig_data: dict) -> str:
       return 180;
     }}
 
+    function estimateScrollDuration(song) {{
+      if (song.scroll_duration_seconds) return song.scroll_duration_seconds;
+      const base = baseScrollDuration(song);
+      const mult = song.scroll_multiplier;
+      if (mult && mult > 0 && mult !== 1) return base / mult;
+      return base;
+    }}
+
     function scrollHintText(song) {{
-      const duration = estimateScrollDuration(song);
-      const parts = [`~${{formatDuration(duration)}}`];
+      const scroll = estimateScrollDuration(song);
+      const parts = [`~${{formatDuration(scroll)}} scroll`];
+      const track = song.duration_seconds;
+      if (track && Math.abs(track - scroll) > 1) {{
+        parts.push(`${{formatDuration(track)}} track`);
+      }}
+      if (song.scroll_multiplier && song.scroll_multiplier !== 1) {{
+        parts.push(`${{song.scroll_multiplier}}×`);
+      }} else if (song.scroll_duration_seconds) {{
+        parts.push("custom scroll");
+      }}
       if (song.tempo) parts.push(`${{song.tempo}} BPM`);
-      else if (!song.duration_seconds) parts.push("estimated");
+      else if (!track && !song.scroll_duration_seconds) parts.push("estimated");
       return parts.join(" · ");
     }}
 

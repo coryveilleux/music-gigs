@@ -11,7 +11,11 @@ from music_gigs.chordpro import (
     section_display_title,
     section_outline_from_structured,
 )
-from music_gigs.gig_html import build_gig_data, render_gig_html
+from music_gigs.gig_html import (
+    _resolve_scroll_fields,
+    build_gig_data,
+    render_gig_html,
+)
 
 
 def test_parse_chordpro_sections():
@@ -354,6 +358,29 @@ I don't drink whiskey I don't know how it feels to hurt
     assert "goin' my way" in outline[0]["end"]
     assert outline[1]["type"] == "chorus"
     assert "feels to hurt" in outline[1]["end"]
+
+
+def test_scroll_timing_fields():
+    duration, mult = _resolve_scroll_fields(
+        {"scroll_multiplier": "1.33"},
+        {"scroll_duration_seconds": 200},
+    )
+    assert duration == 200
+    assert mult == 1.33
+
+    duration, mult = _resolve_scroll_fields(
+        {"scroll_duration": "165"},
+        {"scroll_multiplier": "1.5"},
+    )
+    assert duration == 165
+    assert mult == 1.5
+
+    root = Path(__file__).resolve().parents[1]
+    data = build_gig_data(root / "BailMoneyBand", root / "BailMoneyBand/sets/stone-cow-2026-09-19.yaml")
+    hometown = next(s for s in data["songs"] if s["slug"] == "more-than-my-hometown")
+    assert hometown["duration_seconds"] == 217
+    assert hometown["tempo"] == 126
+    assert hometown["scroll_multiplier"] == 1.33
 
 
 def test_build_pilot_gig():

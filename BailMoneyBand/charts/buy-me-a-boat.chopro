@@ -2,6 +2,7 @@
 {artist: Chris Janson}
 {key: D}
 {tempo: 77}
+{scroll_multiplier: 1.25}
 {comment: Structure: I V C V C B C}
 
 {comment: Blue underlined lines are harmonies}
@@ -54,10 +55,10 @@ I keep <<[D]hearing that money is the root of all evil>>
 {c: Stripped down}
 And it could buy me a [D]boat, it could buy me a [G]truck to pull it
 It could buy me a [D]Yeti 110 iced down with some Silver [A]Bullets
-<<Yeah, I [D (full band)]know what they say, money can't buy every[G]thing>>
-<<Well, maybe [D]so, but it could buy me a [A]boat>>
-<<Yeah, I [D]know what they say, money can't buy every[G]thing>>
-<<Well, maybe [D]so, but it could buy me a [A]boat>>
+<<Yeah, I [D (full band)]know what they say, money can't buy every[G]thing
+Well, maybe [D]so, but it could buy me a [A]boat       [D]      [G]
+Yeah, I [D]know what they say, money can't buy every[G]thing
+Well, maybe [D]so, but it could buy me a [A]boat>>
 {end_of_chorus}
 
 {start_of_outro}

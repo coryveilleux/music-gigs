@@ -30,6 +30,7 @@ sets:
       - slug: fishin-in-the-dark
   - number: 3
     songs:
+      - slug: boston
       - slug: sounds-like-the-radio
       - slug: should-a-been-a-cowboy
       - slug: anything-but-mine

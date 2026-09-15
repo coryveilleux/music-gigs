@@ -3,6 +3,11 @@
 # Metadata enriched from Apple Music playlist export
 
 songs:
+- title: Boston
+  original_artist: Stella Lefty
+  key: C
+  active: true
+  writers: []
 - title: Buy me a boat
   original_artist: Chris Janson
   key: D

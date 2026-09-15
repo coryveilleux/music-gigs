@@ -332,9 +332,12 @@ def render_gig_html(gig_data: dict) -> str:
       color: var(--text); white-space: pre-wrap; line-height: 1.5;
     }}
     .lyric-row.lyrics-only .lyrics {{ margin-top: 0; }}
-    .note, .note-block .note {{ color: #ccc; font-style: italic; margin: 0.5rem 0; }}
+    .note, .note-block .note {{
+      color: #ccc; font-style: italic; font-size: 1.15rem; line-height: 1.45;
+      margin: 0.5rem 0;
+    }}
     .inline-direction {{
-      color: #f5a742; font-style: italic; font-size: 0.95rem;
+      color: #f5a742; font-style: italic; font-size: 1.15rem; line-height: 1.45;
       margin: 0.35rem 0 0.15rem; padding-left: 0.5rem;
       border-left: 3px solid #f5a742;
     }}

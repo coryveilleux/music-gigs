@@ -26,7 +26,7 @@ _PROGRESSION_COMMENT_RE = re.compile(
     re.I,
 )
 _CHORD_ROOT_RE = r"[A-G](?:[#b])?"
-_CHORD_SUFFIX_RE = r"(?:maj7|min7|m7|7|m|sus4|add9|dim|aug)?"
+_CHORD_SUFFIX_RE = r"(?:maj7|min7|m7|7|m|sus2|sus4|add9|dim|aug)?"
 _CHORD_NAME_BODY_RE = rf"{_CHORD_ROOT_RE}{_CHORD_SUFFIX_RE}"
 _CHORD_TOKEN_RE = re.compile(
     rf"{_CHORD_NAME_BODY_RE}(?:/{_CHORD_NAME_BODY_RE})?"
@@ -194,6 +194,65 @@ def _chord_positions(line: str) -> tuple[str, list[dict[str, Any]]]:
     return lyric_plain, chords
 
 
+def _segment_same_style(left: dict[str, Any], right: dict[str, Any]) -> bool:
+    if left.get("direction") or right.get("direction"):
+        return False
+    return left.get("harmony") == right.get("harmony")
+
+
+def _merge_adjacent_segments(segments: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    if not segments:
+        return [{"text": "", "harmony": False, "direction": False}]
+    merged: list[dict[str, Any]] = []
+    for segment in segments:
+        if merged and _segment_same_style(merged[-1], segment):
+            merged[-1] = {
+                **merged[-1],
+                "text": merged[-1]["text"] + segment["text"],
+            }
+        else:
+            merged.append(dict(segment))
+    return merged
+
+
+def _lyric_segments_with_harmony_spans(
+    text: str, in_harmony: bool
+) -> tuple[list[dict[str, Any]], bool]:
+    """Parse << >> harmony markup, including spans that cross line breaks."""
+    segments: list[dict[str, Any]] = []
+    index = 0
+    length = len(text)
+    while index < length:
+        if text.startswith("<<", index):
+            in_harmony = True
+            index += 2
+            continue
+        if text.startswith(">>", index):
+            in_harmony = False
+            index += 2
+            continue
+        next_open = text.find("<<", index)
+        next_close = text.find(">>", index)
+        candidates = [pos for pos in (next_open, next_close) if pos != -1]
+        end = min(candidates) if candidates else length
+        chunk = text[index:end]
+        if chunk:
+            if in_harmony:
+                segments.append({"text": chunk, "harmony": True, "direction": False})
+            else:
+                segments.extend(_lyric_segments(chunk))
+        index = end
+    return _merge_adjacent_segments(segments), in_harmony
+
+
+def _segments_for_line_markup(
+    text: str, in_harmony: bool
+) -> tuple[list[dict[str, Any]], bool]:
+    if "<<" in text or ">>" in text or in_harmony:
+        return _lyric_segments_with_harmony_spans(text, in_harmony)
+    return _lyric_segments(text), in_harmony
+
+
 def _lyric_segments(lyric_plain: str) -> list[dict[str, Any]]:
     segments: list[dict[str, Any]] = []
     last = 0
@@ -244,60 +303,84 @@ def _chords_from_bar_notation(text: str) -> list[str]:
     return chords
 
 
-def _parse_section_line(line: str, section_type: str = "") -> list[dict[str, Any]]:
+def _parse_section_line(
+    line: str, section_type: str = "", *, in_harmony: bool = False
+) -> tuple[list[dict[str, Any]], bool]:
     stripped = line.strip()
     if stripped.startswith("{__note__:") and stripped.endswith("}"):
         text = stripped[10:-1]
         progression_match = _PROGRESSION_INLINE_RE.match(text)
         if progression_match:
-            return [{"kind": "progression", "spec": progression_match.group(1).strip()}]
-        return [{"kind": "note", "text": text, "inline": True}]
+            return [{"kind": "progression", "spec": progression_match.group(1).strip()}], in_harmony
+        return [{"kind": "note", "text": text, "inline": True}], in_harmony
     if stripped.startswith("{__harmony__:") and stripped.endswith("}"):
-        return [{"kind": "harmony", "text": stripped[13:-1]}]
+        return [{"kind": "harmony", "text": stripped[13:-1]}], in_harmony
 
     if _is_bar_notation(line):
-        return [{"kind": "bars", "text": line, "chords": _chords_from_bar_notation(line)}]
+        return [{"kind": "bars", "text": line, "chords": _chords_from_bar_notation(line)}], in_harmony
 
     if _is_chord_only_line(line):
         _, chords = _chord_positions(line)
-        return [{"kind": "chord_line", "chords": chords}]
+        return [{"kind": "chord_line", "chords": chords}], in_harmony
 
     if _CHORD_RE.search(line):
         lyrics, chords = _chord_positions(line)
         segment_source = _CHORD_RE.sub("", line).strip()
+        segments, in_harmony = _segments_for_line_markup(segment_source, in_harmony)
         return [
             {
                 "kind": "lyric",
                 "lyrics": lyrics,
                 "chords": chords,
-                "segments": _lyric_segments(segment_source),
+                "segments": segments,
             }
-        ]
+        ], in_harmony
 
-    if _HARMONY_RE.search(line) or _SEGMENT_MARKUP_RE.search(line):
-        stripped = line.strip()
-        segment_source = _CHORD_RE.sub("", stripped)
+    if (
+        _HARMONY_RE.search(line)
+        or _SEGMENT_MARKUP_RE.search(line)
+        or "<<" in line
+        or ">>" in line
+        or in_harmony
+    ):
+        stripped_line = line.strip()
+        segment_source = _CHORD_RE.sub("", stripped_line)
+        segments, in_harmony = _segments_for_line_markup(segment_source, in_harmony)
         return [
             {
                 "kind": "lyric",
-                "lyrics": _strip_lyric_markup(stripped).strip(),
+                "lyrics": _strip_lyric_markup(stripped_line).strip(),
                 "chords": [],
-                "segments": _lyric_segments(segment_source),
+                "segments": segments,
             }
-        ]
+        ], in_harmony
 
     if section_type in _LYRIC_SECTION_TYPES:
         text = line.rstrip()
+        segments, in_harmony = _segments_for_line_markup(text, in_harmony)
         return [
             {
                 "kind": "lyric",
-                "lyrics": text,
+                "lyrics": _strip_lyric_markup(text),
                 "chords": [],
-                "segments": _lyric_segments(text),
+                "segments": segments,
             }
-        ]
+        ], in_harmony
 
-    return [{"kind": "note", "text": line, "inline": False}]
+    return [{"kind": "note", "text": line, "inline": False}], in_harmony
+
+
+def _parse_section_blocks_from_lines(
+    lines: list[str], section_type: str
+) -> list[dict[str, Any]]:
+    blocks: list[dict[str, Any]] = []
+    in_harmony = False
+    for line in lines:
+        new_blocks, in_harmony = _parse_section_line(
+            line, section_type, in_harmony=in_harmony
+        )
+        blocks.extend(new_blocks)
+    return _merge_chord_line_blocks(blocks)
 
 
 def _merge_chord_line_blocks(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -478,9 +561,7 @@ def chordpro_to_structured(song: ChordProSong) -> list[dict[str, Any]]:
                 }
             )
         else:
-            for line in lines:
-                blocks.extend(_parse_section_line(line, section_type))
-            blocks = _merge_chord_line_blocks(blocks)
+            blocks = _parse_section_blocks_from_lines(lines, section_type)
 
         progression_override = None
         content_blocks: list[dict[str, Any]] = []
@@ -799,7 +880,7 @@ def _render_lyric_line(
     show_nashville: bool = False,
 ) -> str:
     """Render chords on a line above the lyrics (classic chart layout)."""
-    blocks = _parse_section_line(line)
+    blocks, _ = _parse_section_line(line)
     block = blocks[0]
     if block["kind"] != "lyric":
         return ""
@@ -903,13 +984,12 @@ def render_chordpro_html(song: ChordProSong) -> str:
         if section_type in {"intro", "outro"}:
             block_class = "note-block"
 
-        section_blocks: list[dict[str, Any]] = []
-        for line in lines:
-            for block in _parse_section_line(line, section_type):
-                if block["kind"] in {"tab", "abc"}:
-                    continue
-                section_blocks.append(block)
-        section_blocks = _merge_chord_line_blocks(section_blocks)
+        section_blocks = _parse_section_blocks_from_lines(lines, section_type)
+        section_blocks = [
+            block
+            for block in section_blocks
+            if block["kind"] not in {"tab", "abc"}
+        ]
 
         line_html = []
         for block in section_blocks:

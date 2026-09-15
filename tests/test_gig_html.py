@@ -237,6 +237,32 @@ Well, maybe [D]so, but it could [*STOP] buy me a [A]boat
     assert "STOP" in html
 
 
+def test_multiline_harmony_span():
+    text = """{start_of_chorus}
+<<That I love you [G]more than a California sunset
+More than a [Am]beer when you ain't twenty-one yet
+Turnin' some poor lost souls 'round, and Hallelujah bound>>
+{end_of_chorus}
+"""
+    song = parse_chordpro(text)
+    structured = chordpro_to_structured(song)[0]
+    blocks = [block for block in structured["blocks"] if block["kind"] == "lyric"]
+    assert len(blocks) == 3
+    assert all(
+        segment.get("harmony")
+        for block in blocks
+        for segment in block["segments"]
+        if segment["text"].strip()
+    )
+    first_line = "<<That I love you [G]more than a California sunset"
+    lyrics0, chords0 = _chord_positions(first_line)
+    assert lyrics0 == "That I love you more than a California sunset"
+    assert lyrics0[chords0[0]["pos"] : chords0[0]["pos"] + 4] == "more"
+    assert blocks[0]["lyrics"] == lyrics0
+    html = render_chordpro_html(song)
+    assert html.count('class="harmony"') >= 3
+
+
 def test_chords_align_with_harmony_markup():
     line = (
         "But <<it could buy me a [D (bass and full band)]boat, "

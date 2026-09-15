@@ -173,7 +173,7 @@ These work in **this project’s HTML gig book** only. Other software will not u
 |--------|---------|
 | `{dir: ...}`, `{direction: ...}`, `{note: ...}` | Same idea as `{c:}` — use `{c:}` if you need portability |
 | `{harmony: ...}`, `{harm: ...}`, `{bv: ...}` | Whole backing-vocal line |
-| `<<words>>` | Inline harmony highlight on specific words |
+| `<<words>>` | Inline harmony highlight; open `<<` on one line and close `>>` on a later line to mark a multi-line backing part |
 | `\|C\| \|F\| \|G\|` | Bar notation for instrumental changes |
 | Chord-only lines (`[C]  [F]  [G]` with no lyrics) | Instrumental changes (portable as plain `[chord]` lines; spacing/extra features are ours) |
 

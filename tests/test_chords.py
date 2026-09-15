@@ -20,6 +20,12 @@ def test_nashville_in_key_d():
     assert chord_to_nashville("G", "D") == "4"
 
 
+def test_parse_csus2_chord():
+    from music_gigs.chordpro import _parse_bracket_token
+
+    assert _parse_bracket_token("Csus2") == {"chord": "Csus2", "cue": ""}
+
+
 def test_parse_sharp_minor_chord():
     from music_gigs.chordpro import _parse_bracket_token, _chord_positions
 

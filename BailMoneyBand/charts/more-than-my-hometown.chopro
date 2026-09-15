@@ -1,73 +1,85 @@
 {title: More than my Hometown}
 {artist: Morgan Wallen}
 {key: G}
-{comment: Chart adapted from chord sheet — verify arrangement}
 {comment: Structure: I V C V C B C T}
 
 {start_of_intro}
-| [G] | [Csus2] | [Em] | [C] |
+{c: Guitar mellow, bass quiet but normal, high hat on 2 and 4}
+| G / / / | Am / / / | Em / / / | Cadd9 / / / |
 {end_of_intro}
 
 {start_of_verse}
 [G]Girl, our mamas are best friends and so are we
-The whole town's rooting for us like the home [Csus2]team
+The [Am]whole town's rooting for us like the home team
 [Em]Most likely to settle down
-Plant a few roots real deep and let 'em [C]grow
-[G]But we can't stop this real world from spinnin' us
-Your bright lights called, I don't blame you for pickin' [Csus2]up
-Your [Em]big dream bags are all packed up and ready to [C]go
-But I just need you to know
+Plant a few [Cadd9]roots real deep and let 'em grow
+<<[G (DRUMS IN)]But we can't stop this real world from spinnin' us
+Your [Am]bright lights called, I don't blame you for pickin' up
+Your [Em]big dream bags are all packed up and ready to [Cadd9]go
+But I just need you to know>>
 {end_of_verse}
 
 {start_of_chorus}
-That I love you more than a California [G]sunset
-More than a beer when you ain't twenty-one [C]yet
-More than a Sunday morning [Em]Lord
-Turnin' some poor lost souls 'round, and Hallelujah [C]bound
-Yeah, I love you more than the feeling when the bass hits the [G]hook
-When the guy gets the girl at the end of the [C]book
-But, baby, this might be the last time I get to lay you [Em]down
-'Cause I can't love you more than my [G]hometown
+<<That I love you [G]more than a California sunset
+More than a [Am]beer when you ain't twenty-one yet
+More than a [Em]Sunday morning Lord
+Turnin' some poor lost souls [Cadd9]'round, and Hallelujah bound
+Yeah, I love you [G]more than the feeling when the bass hits the hook
+When the [Am]guy gets the girl at the end of the book
+But, baby, [Em]this might be the last time I get to lay you [Cadd9]down
+'Cause I can't love you more than my home[G]town>>
 {end_of_chorus}
+
+
+{start_of_interlude}
+| G / / / | G / / / | G / / / | G / / / |
+{end_of_interlude}
 
 {start_of_verse}
-[G]I ain't the runaway kind, I can't change that
-[Csus2]My heart's stuck in these streets like the train tracks
+<<[G]I ain't the runaway kind, I can't change that
+My [Am]heart's stuck in these streets like the train tracks
 [Em]City sky ain't the same black
-Ain't that a map dot shame, man, to think [C]that
+Ain't that a [Cadd9]map dot shame, man, to think that>>
 {end_of_verse}
 
 {start_of_chorus}
-[G]I love you more than a California sunset
-More than a beer when you ain't twenty-one [C]yet
-More than a Sunday morning [Em]Lord
-Turnin' some poor lost souls 'round, and Hallelujah [C]bound
-Yeah, I love you more than the feeling when the bass hits the [G]hook
-When the guy gets the girl at the end of the [C]book
-But, baby, this might be the last time I get to lay you [Em]down
-'Cause I can't love you more than my [G]hometown
+<<I love you [G]more than a California sunset
+More than a [Am]beer when you ain't twenty-one yet
+More than a [Em]Sunday morning Lord
+Turnin' some poor lost souls [Cadd9]'round, and Hallelujah bound
+Yeah, I love you [G]more than the feeling when the bass hits the hook
+When the [Am]guy gets the girl at the end of the book
+But, baby, [Em]this might be the last time I get to lay you down
+'Cause I can't love you more than my home[G]town>>
 {end_of_chorus}
 
+{start_of_interlude}
+| G / / / | G / / / |
+{end_of_interlude}
+
 {start_of_bridge}
-[G]Yeah, you got a wild in your eyes that I just wasn't born with
-[Csus2]I'm a same gas station cup of coffee in the mornin'
-[Em]I need a house on the hill, girl, not in 'em
-So hang onto these words 'til them avenues help you forget [C]'em
+{c: No drums, bass and guitar on 1 of each measure}
+<<You got a [G]wild in your eyes that I just wasn't born with
+I'm a [Am]same gas station cup of coffee in the mornin'
+I need a [Em]house on the hill, girl, not in 'em
+So hang onto these words [Cadd9] 'til them avenues help you forget 'em>>
 {end_of_bridge}
 
 {start_of_chorus}
-'Cause I love you more than a California [G]sunset
-[C]I love you more in a twenty-dollar sundress
-Hate that loaded down car you got your keys [Em]in
-[C]Girl, but I hate even more that you're leavin'
-'Cause I love you more than the feeling when the bass hits the [G]hook
-When the guy gets the girl at the end of the [C]book
-But that ain't you and me so I guess I'll see you a[Em]round
-'Cause I can't love you more than my [G]hometown
+{c: Guitar mellow, bass quiet but normal, kick on "and 1" / "and 3", high hat on 2 and 4}
+'Cause I love you [G]more than a California sunset
+I love you [Am]more in a twenty-dollar sundress
+Hate that [Em]loaded down car you got your keys in
+<<Girl, but I [Cadd9]hate even more that you're leavin'
+'Cause I love you [G (DRUMS IN)]more than the feeling when the bass hits the hook
+When the [Am]guy gets the girl at the end of the book
+But that [Em]ain't you and me so I guess I'll see you a[Cadd9]round
+'Cause I can't love you more than my home[G (DRUMS OUT)]town>>
 {end_of_chorus}
 
 {start_of_tag}
-[C]Love you more than my hometown
-[Em]Love you more than my hometown
-[C]Love you more, baby, love you [G]more
+{c: Drums out, bass on 1 each measure}
+[G]Love you more than my hometown[Am]
+Love you more than my hometown[Em]
+[Cadd9]Love you more, baby, love you more[G]
 {end_of_tag}

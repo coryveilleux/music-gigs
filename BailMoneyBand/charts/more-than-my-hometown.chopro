@@ -1,6 +1,8 @@
 {title: More than my Hometown}
 {artist: Morgan Wallen}
 {key: G}
+{tempo: 126}
+{scroll_multiplier: 1.33}
 {comment: Structure: I V C V C B C T}
 
 {start_of_intro}

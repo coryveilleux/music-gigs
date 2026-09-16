@@ -401,6 +401,8 @@ def test_build_pilot_gig():
     assert "transpose-bar" in html
     assert "performance-bar" in html
     assert "view-outline" in html
+    assert 'id="theme-mode"' in html
+    assert "THEME_PALETTES" in html
     assert 'href="#song-i-never-lie"' in html
     assert 'id="song-i-never-lie"' in html
     assert "body_html" not in html

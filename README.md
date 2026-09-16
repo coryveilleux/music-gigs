@@ -106,7 +106,7 @@ BailMoneyBand/
 uv run scripts/build_gig_html.py BailMoneyBand sets/pilot-gig.yaml -o BailMoneyBand/gigs/pilot-gig.html
 ```
 
-Features: numbered set list, search, transpose, Nashville numbers, **Structure** view (chords + lyric anchors per section), **Fit page** zoom, and **auto scroll** timed from track length (`duration_seconds` in `songs.yaml`), `{tempo: N}`, or per-chart scroll overrides (below).
+Features: numbered set list, search, transpose, Nashville numbers, **Structure** view (chords + lyric anchors per section), **Fit page** zoom, **auto scroll** timed from track length (`duration_seconds` in `songs.yaml`), `{tempo: N}`, or per-chart scroll overrides (below), and **Look / Palette** theme picks on the set list (night indoor vs day outdoor, several palettes each; saved in the browser).
 
 ### Bulk chart import and restructure
 

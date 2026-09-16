@@ -233,15 +233,28 @@ def render_gig_html(gig_data: dict) -> str:
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#111111">
   <title>{gig_data["band"]} — {gig_data["gig"]}</title>
   <style>
     :root {{
       --bg: #111;
       --surface: #1a1a1a;
+      --surface-raised: #252525;
       --text: #f2f2f2;
       --muted: #aaa;
+      --note-text: #ccc;
       --accent: #f5c542;
+      --on-accent: #111;
       --border: #333;
+      --nav-bg: rgba(17, 17, 17, 0.95);
+      --hover-bg: #252525;
+      --direction: #f5a742;
+      --harmony: #9fd4ff;
+      --harmony-underline: #5aa8e8;
+      --code-bg: #0a0a0a;
+      --code-text: #ddd;
+      --scroll-active: #3d7a3d;
+      --scroll-active-text: #fff;
       --tap: 48px;
     }}
     * {{ box-sizing: border-box; }}
@@ -251,7 +264,7 @@ def render_gig_html(gig_data: dict) -> str:
     .nav-bar {{
       position: fixed; left: 0; right: 0; z-index: 100;
       display: flex; gap: 0.5rem; padding: 0.5rem;
-      background: rgba(17,17,17,0.95); border-bottom: 1px solid var(--border);
+      background: var(--nav-bg); border-bottom: 1px solid var(--border);
       backdrop-filter: blur(8px);
     }}
     .nav-top {{ top: 0; }}
@@ -262,7 +275,7 @@ def render_gig_html(gig_data: dict) -> str:
       font-size: 0.95rem; text-decoration: none; display: flex;
       align-items: center; justify-content: center; cursor: pointer;
     }}
-    .nav-bar button.primary {{ background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }}
+    .nav-bar button.primary {{ background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }}
     main {{ padding: 4.5rem 1rem 5.5rem; max-width: 900px; margin: 0 auto; }}
     h1 {{ font-size: 1.5rem; margin: 0 0 0.25rem; }}
     .meta {{ color: var(--muted); margin-bottom: 1rem; font-size: 0.95rem; }}
@@ -286,7 +299,21 @@ def render_gig_html(gig_data: dict) -> str:
       cursor: pointer;
     }}
     .suggestion:last-child {{ border-bottom: none; }}
-    .suggestion:active, .suggestion:hover {{ background: #252525; }}
+    .suggestion:active, .suggestion:hover {{ background: var(--hover-bg); }}
+    .theme-bar {{
+      display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;
+      margin-bottom: 1rem; padding: 0.75rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    }}
+    .theme-bar label {{
+      display: flex; flex-direction: column; gap: 0.25rem;
+      font-size: 0.8rem; color: var(--muted); flex: 1 1 8rem;
+    }}
+    .theme-bar select {{
+      min-height: 2.5rem; padding: 0.35rem 0.5rem; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--surface-raised);
+      color: var(--text); font-size: 0.95rem;
+    }}
     .suggestion .meta {{ color: var(--muted); font-size: 0.85rem; margin-left: 0.5rem; }}
     .set-header {{
       color: var(--accent); font-weight: 700; font-size: 1.1rem;
@@ -313,7 +340,7 @@ def render_gig_html(gig_data: dict) -> str:
     .transpose-bar button {{
       min-width: 2.5rem; min-height: 2.5rem; padding: 0.35rem 0.6rem;
       border: 1px solid var(--border); border-radius: 8px;
-      background: #252525; color: var(--text); font-size: 1rem; cursor: pointer;
+      background: var(--surface-raised); color: var(--text); font-size: 1rem; cursor: pointer;
     }}
     .transpose-bar button.reset {{ font-size: 0.85rem; min-width: auto; }}
     .transpose-bar label.nashville {{
@@ -360,7 +387,7 @@ def render_gig_html(gig_data: dict) -> str:
       font-weight: 700;
     }}
     .chord-track .chord-cue {{
-      color: #f5a742;
+      color: var(--direction);
       font-style: italic;
       font-weight: 600;
       font-size: 0.9em;
@@ -378,13 +405,13 @@ def render_gig_html(gig_data: dict) -> str:
     }}
     .lyric-row.lyrics-only .lyrics {{ margin-top: 0; }}
     .note, .note-block .note {{
-      color: #ccc; font-style: italic; font-size: 1.15rem; line-height: 1.45;
+      color: var(--note-text); font-style: italic; font-size: 1.15rem; line-height: 1.45;
       margin: 0.5rem 0;
     }}
     .inline-direction {{
-      color: #f5a742; font-style: italic; font-size: 1.15rem; line-height: 1.45;
+      color: var(--direction); font-style: italic; font-size: 1.15rem; line-height: 1.45;
       margin: 0.35rem 0 0.15rem; padding-left: 0.5rem;
-      border-left: 3px solid #f5a742;
+      border-left: 3px solid var(--direction);
     }}
     .lyrics .inline-direction {{
       display: inline;
@@ -395,8 +422,8 @@ def render_gig_html(gig_data: dict) -> str:
       font-weight: 600;
     }}
     .harmony, .harmony-line {{
-      color: #9fd4ff; font-weight: 600;
-      text-decoration: underline; text-decoration-color: #5aa8e8;
+      color: var(--harmony); font-weight: 600;
+      text-decoration: underline; text-decoration-color: var(--harmony-underline);
       text-underline-offset: 0.15em;
     }}
     .harmony-line {{ margin: 0.35rem 0; font-style: italic; }}
@@ -405,12 +432,12 @@ def render_gig_html(gig_data: dict) -> str:
       color: var(--accent); font-weight: 700; margin: 0.35rem 0;
     }}
     pre.tab, pre.abc {{
-      background: #0a0a0a; border: 1px solid var(--border);
+      background: var(--code-bg); border: 1px solid var(--border);
       border-radius: 8px; padding: 0.75rem; overflow-x: auto;
       font-family: "Courier New", Courier, monospace;
-      font-size: 0.95rem; line-height: 1.35; color: #ddd;
+      font-size: 0.95rem; line-height: 1.35; color: var(--code-text);
     }}
-    pre.abc {{ border-color: #445; }}
+    pre.abc {{ border-color: var(--border); }}
     .performance-bar {{
       display: flex; flex-wrap: wrap; gap: 0.5rem;
       margin-bottom: 1rem; padding: 0.75rem;
@@ -422,13 +449,14 @@ def render_gig_html(gig_data: dict) -> str:
     .perf-btn {{
       flex: 1; min-height: var(--tap); padding: 0.5rem 0.65rem;
       border: 1px solid var(--border); border-radius: 8px;
-      background: #252525; color: var(--text); font-size: 0.9rem; cursor: pointer;
+      background: var(--surface-raised); color: var(--text); font-size: 0.9rem; cursor: pointer;
     }}
     .perf-btn.active {{
-      background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600;
+      background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600;
     }}
     .perf-btn.scroll-btn.active {{
-      background: #3d7a3d; color: #fff; border-color: #3d7a3d;
+      background: var(--scroll-active); color: var(--scroll-active-text);
+      border-color: var(--scroll-active);
     }}
     .scroll-hint {{
       width: 100%; font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem;
@@ -484,6 +512,19 @@ def render_gig_html(gig_data: dict) -> str:
         <input class="search" id="search" type="search" placeholder="Search songs..." autocomplete="off" enterkeyhint="search">
         <div class="search-suggestions" id="search-suggestions"></div>
       </div>
+      <div class="theme-bar" aria-label="Chart colors">
+        <label>
+          Look
+          <select id="theme-mode">
+            <option value="dark">Night (indoor)</option>
+            <option value="light">Day (outdoor)</option>
+          </select>
+        </label>
+        <label>
+          Palette
+          <select id="theme-palette"></select>
+        </label>
+      </div>
       <div id="song-list">{static_list}</div>
     </div>
     <div id="song-view" class="hidden"></div>
@@ -502,6 +543,212 @@ def render_gig_html(gig_data: dict) -> str:
   <script>
     document.documentElement.classList.add("js");
     const GIG = {payload};
+
+    const THEME_STORAGE_KEY = "music-gigs-chart-theme";
+    const THEME_PALETTES = {{
+      dark: {{
+        stage: {{
+          "--bg": "#111111",
+          "--surface": "#1a1a1a",
+          "--surface-raised": "#252525",
+          "--text": "#f2f2f2",
+          "--muted": "#aaaaaa",
+          "--note-text": "#cccccc",
+          "--accent": "#f5c542",
+          "--on-accent": "#111111",
+          "--border": "#333333",
+          "--nav-bg": "rgba(17, 17, 17, 0.95)",
+          "--hover-bg": "#252525",
+          "--direction": "#f5a742",
+          "--harmony": "#9fd4ff",
+          "--harmony-underline": "#5aa8e8",
+          "--code-bg": "#0a0a0a",
+          "--code-text": "#dddddd",
+          "--scroll-active": "#3d7a3d",
+          "--scroll-active-text": "#ffffff",
+        }},
+        warm: {{
+          "--bg": "#14110e",
+          "--surface": "#1f1a15",
+          "--surface-raised": "#2a221b",
+          "--text": "#f6efe6",
+          "--muted": "#b8a998",
+          "--note-text": "#d4c8b8",
+          "--accent": "#ffb84d",
+          "--on-accent": "#1a1208",
+          "--border": "#3d3228",
+          "--nav-bg": "rgba(20, 17, 14, 0.96)",
+          "--hover-bg": "#2a221b",
+          "--direction": "#ff9f43",
+          "--harmony": "#ffc971",
+          "--harmony-underline": "#e08b2d",
+          "--code-bg": "#0f0c09",
+          "--code-text": "#e8dfd3",
+          "--scroll-active": "#4d7c3a",
+          "--scroll-active-text": "#ffffff",
+        }},
+        contrast: {{
+          "--bg": "#000000",
+          "--surface": "#121212",
+          "--surface-raised": "#1e1e1e",
+          "--text": "#ffffff",
+          "--muted": "#c8c8c8",
+          "--note-text": "#e0e0e0",
+          "--accent": "#ffe566",
+          "--on-accent": "#000000",
+          "--border": "#444444",
+          "--nav-bg": "rgba(0, 0, 0, 0.96)",
+          "--hover-bg": "#1e1e1e",
+          "--direction": "#ffd24d",
+          "--harmony": "#b8e6ff",
+          "--harmony-underline": "#6ec8ff",
+          "--code-bg": "#050505",
+          "--code-text": "#f0f0f0",
+          "--scroll-active": "#2f9e44",
+          "--scroll-active-text": "#ffffff",
+        }},
+      }},
+      light: {{
+        sun: {{
+          "--bg": "#f8f4e8",
+          "--surface": "#fffdf6",
+          "--surface-raised": "#f0ead8",
+          "--text": "#1f1a12",
+          "--muted": "#5c5345",
+          "--note-text": "#4a4338",
+          "--accent": "#b45309",
+          "--on-accent": "#fffaf0",
+          "--border": "#d4c9b0",
+          "--nav-bg": "rgba(248, 244, 232, 0.96)",
+          "--hover-bg": "#efe6d0",
+          "--direction": "#c2410c",
+          "--harmony": "#1d4ed8",
+          "--harmony-underline": "#3b82f6",
+          "--code-bg": "#f3ede0",
+          "--code-text": "#292524",
+          "--scroll-active": "#15803d",
+          "--scroll-active-text": "#ffffff",
+        }},
+        cloud: {{
+          "--bg": "#f2f4f8",
+          "--surface": "#ffffff",
+          "--surface-raised": "#e8ecf2",
+          "--text": "#111827",
+          "--muted": "#4b5563",
+          "--note-text": "#374151",
+          "--accent": "#1d4ed8",
+          "--on-accent": "#ffffff",
+          "--border": "#cbd5e1",
+          "--nav-bg": "rgba(242, 244, 248, 0.96)",
+          "--hover-bg": "#e5eaf0",
+          "--direction": "#b45309",
+          "--harmony": "#7c3aed",
+          "--harmony-underline": "#8b5cf6",
+          "--code-bg": "#e8ecf2",
+          "--code-text": "#1f2937",
+          "--scroll-active": "#047857",
+          "--scroll-active-text": "#ffffff",
+        }},
+        outdoor: {{
+          "--bg": "#ffffff",
+          "--surface": "#fafafa",
+          "--surface-raised": "#eeeeee",
+          "--text": "#000000",
+          "--muted": "#333333",
+          "--note-text": "#1a1a1a",
+          "--accent": "#000000",
+          "--on-accent": "#ffffff",
+          "--border": "#999999",
+          "--nav-bg": "rgba(255, 255, 255, 0.97)",
+          "--hover-bg": "#e8e8e8",
+          "--direction": "#9a3412",
+          "--harmony": "#1e40af",
+          "--harmony-underline": "#1d4ed8",
+          "--code-bg": "#f3f3f3",
+          "--code-text": "#111111",
+          "--scroll-active": "#166534",
+          "--scroll-active-text": "#ffffff",
+        }},
+      }},
+    }};
+    const PALETTE_LABELS = {{
+      dark: {{ stage: "Stage", warm: "Warm", contrast: "High contrast" }},
+      light: {{ sun: "Sun", cloud: "Cloud", outdoor: "Outdoor bold" }},
+    }};
+    const DEFAULT_THEME = {{ mode: "dark", palette: "stage" }};
+
+    function applyTheme(mode, palette) {{
+      const vars = THEME_PALETTES[mode] && THEME_PALETTES[mode][palette];
+      if (!vars) return;
+      const root = document.documentElement;
+      for (const [name, value] of Object.entries(vars)) {{
+        root.style.setProperty(name, value);
+      }}
+      root.dataset.themeMode = mode;
+      root.dataset.themePalette = palette;
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", vars["--bg"]);
+    }}
+
+    function parseStoredTheme() {{
+      try {{
+        const raw = localStorage.getItem(THEME_STORAGE_KEY);
+        if (!raw) return {{ ...DEFAULT_THEME }};
+        const [mode, palette] = raw.split(":");
+        if (THEME_PALETTES[mode] && THEME_PALETTES[mode][palette]) {{
+          return {{ mode, palette }};
+        }}
+      }} catch (e) {{}}
+      return {{ ...DEFAULT_THEME }};
+    }}
+
+    function storeTheme(mode, palette) {{
+      try {{
+        localStorage.setItem(THEME_STORAGE_KEY, `${{mode}}:${{palette}}`);
+      }} catch (e) {{}}
+    }}
+
+    function populatePaletteSelect(mode, selected) {{
+      const select = document.getElementById("theme-palette");
+      if (!select) return;
+      const labels = PALETTE_LABELS[mode] || {{}};
+      select.innerHTML = "";
+      for (const id of Object.keys(THEME_PALETTES[mode] || {{}})) {{
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = labels[id] || id;
+        select.appendChild(option);
+      }}
+      if (selected && THEME_PALETTES[mode][selected]) {{
+        select.value = selected;
+      }}
+    }}
+
+    function initThemeControls() {{
+      const modeSelect = document.getElementById("theme-mode");
+      const paletteSelect = document.getElementById("theme-palette");
+      if (!modeSelect || !paletteSelect) return;
+      let theme = parseStoredTheme();
+      modeSelect.value = theme.mode;
+      populatePaletteSelect(theme.mode, theme.palette);
+      applyTheme(theme.mode, theme.palette);
+
+      modeSelect.addEventListener("change", () => {{
+        const mode = modeSelect.value;
+        const firstPalette = Object.keys(THEME_PALETTES[mode] || {{}})[0];
+        populatePaletteSelect(mode, firstPalette);
+        theme = {{ mode, palette: paletteSelect.value }};
+        applyTheme(theme.mode, theme.palette);
+        storeTheme(theme.mode, theme.palette);
+      }});
+      paletteSelect.addEventListener("change", () => {{
+        theme = {{ mode: modeSelect.value, palette: paletteSelect.value }};
+        applyTheme(theme.mode, theme.palette);
+        storeTheme(theme.mode, theme.palette);
+      }});
+    }}
+
+    initThemeControls();
 
     const navTop = document.getElementById("nav-top");
     const navBottom = document.getElementById("nav-bottom");

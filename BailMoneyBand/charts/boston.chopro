@@ -1,6 +1,8 @@
 {title: Boston}
 {artist: Stella Lefty}
 {key: C}
+{tempo: 126}
+{scroll_multiplier: 1.25}
 {comment: Structure: C V C V PC C B C O}
 
 {start_of_chorus}

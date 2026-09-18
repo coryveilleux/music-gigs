@@ -6,6 +6,7 @@ songs:
 - title: Boston
   original_artist: Stella Lefty
   key: C
+  duration_seconds: 171
   active: true
   writers: []
 - title: Buy me a boat

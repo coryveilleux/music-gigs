@@ -303,7 +303,7 @@ class GigBookPDF(FPDF):
         segments: list[dict[str, Any]],
         lyric_size: float,
     ) -> None:
-        """Paint lyrics segment-by-segment (harmony color) without shifting columns."""
+        """Paint lyrics segment-by-segment (harmony color + underline) without shifting columns."""
         margin = self.c_margin
         # One left inset to match the chord row; zero margin between segment cells.
         self.c_margin = 0
@@ -319,6 +319,7 @@ class GigBookPDF(FPDF):
                 else:
                     self.set_text_color(*self.theme.text)
                 seg_w = self.get_string_width(_pdf_text(text))
+                x_start = self.get_x()
                 self.cell(
                     seg_w,
                     lyric_h,
@@ -326,6 +327,11 @@ class GigBookPDF(FPDF):
                     new_x=XPos.RIGHT,
                     new_y=YPos.TOP,
                 )
+                if segment.get("harmony"):
+                    underline_y = y + lyric_h - 0.55
+                    self.set_draw_color(*self.theme.harmony)
+                    self.set_line_width(0.1)
+                    self.line(x_start, underline_y, x_start + seg_w, underline_y)
         finally:
             self.c_margin = margin
         self.set_xy(x, y + lyric_h)
@@ -358,6 +364,13 @@ class GigBookPDF(FPDF):
     def _lyric_inner_max_width(self, column_width: float) -> float:
         return max(10.0, column_width - 2 * self.c_margin)
 
+    def _ensure_vertical_space(
+        self, height: float, song_first_page: int
+    ) -> tuple[float, float]:
+        if self.get_y() + height > self.song_body_bottom():
+            self.add_page()
+        return self.lyric_column(song_first_page)
+
     def _fit_mono_line_font_size(
         self, lines: list[str], column_width: float, base_size: float
     ) -> float:
@@ -376,17 +389,17 @@ class GigBookPDF(FPDF):
         width: float,
         layout: SongLayout,
         song_key: str,
+        song_first_page: int,
     ) -> float:
         """Match HTML: monospace chord row (_build_chord_line) then lyric, same font."""
-        y0 = self.get_y()
         lyric = _lyric_plain(block)
         chords = block.get("chords") or []
-        lyric_h = _line_height_mm(layout.lyric)
         segments = _lyric_segments(block)
         if not chords:
             lyric_size = self._fit_mono_line_font_size([lyric], width, layout.lyric)
             lyric_h = _line_height_mm(lyric_size)
-            self.set_xy(x, y0)
+            x, width = self._ensure_vertical_space(lyric_h + 0.2, song_first_page)
+            y0 = self.get_y()
             self._render_styled_mono_line(x, y0, width, lyric_h, segments, lyric_size)
             return self.get_y() - y0
 
@@ -397,6 +410,9 @@ class GigBookPDF(FPDF):
         chord_line = _build_chord_line(lyric, chords, key).rstrip()
         chord_h = _line_height_mm(lyric_size)
         lyric_h = _line_height_mm(lyric_size)
+        pair_h = chord_h + 0.15 + lyric_h + 0.2
+        x, width = self._ensure_vertical_space(pair_h, song_first_page)
+        y0 = self.get_y()
         line_w = (
             max(
                 self._lyric_text_width(chord_line, lyric_size),
@@ -405,21 +421,25 @@ class GigBookPDF(FPDF):
             + 2 * self.c_margin
         )
 
-        self.set_xy(x, y0)
-        self.set_font(MONO, size=lyric_size)
-        self.set_text_color(*self.theme.accent)
-        self.cell(
-            line_w,
-            chord_h,
-            _pdf_text(chord_line),
-            align=Align.L,
-            new_x=XPos.LMARGIN,
-            new_y=YPos.NEXT,
-        )
-        y_lyric = self.get_y() + 0.15
-        self._render_styled_mono_line(
-            x, y_lyric, line_w, lyric_h, segments, lyric_size
-        )
+        self.set_auto_page_break(False)
+        try:
+            self.set_xy(x, y0)
+            self.set_font(MONO, size=lyric_size)
+            self.set_text_color(*self.theme.accent)
+            self.cell(
+                line_w,
+                chord_h,
+                _pdf_text(chord_line),
+                align=Align.L,
+                new_x=XPos.LEFT,
+                new_y=YPos.NEXT,
+            )
+            y_lyric = self.get_y() + 0.15
+            self._render_styled_mono_line(
+                x, y_lyric, line_w, lyric_h, segments, lyric_size
+            )
+        finally:
+            self.set_auto_page_break(True, margin=14)
         return self.get_y() - y0
 
     def render_song_structure_sidebar(
@@ -584,7 +604,9 @@ class GigBookPDF(FPDF):
                     )
                     self.ln(0.15)
                 elif kind == "lyric":
-                    self.render_tight_lyric(block, main_x, main_w, layout, song_key)
+                    self.render_tight_lyric(
+                        block, main_x, main_w, layout, song_key, song_first_page
+                    )
                     self.ln(0.1)
                 elif kind in {"tab", "abc"}:
                     label_text = block.get("label") or kind

@@ -247,6 +247,12 @@ Lead sings here and these words
 {end_of_intro}
 ```
 
+Bar lines use one chord per measure: `| D / / / | G / / / |`. Repeats are flexible in the chart — the gig book normalizes them in **Structure** to **`D (×2)`** or **`D G (×2)`**:
+
+- `| D / / / | (x2)` or `| D / / / | x2`
+- `| D / / / | D / / / |` (same as two D bars)
+- `| D / / / | G / / / | (x2)`
+
 Bar notation and chord-only lines are gig-book conventions; in other apps, `{c: F#m - D - A - E}` or a chord line `[F#m] [D] [A] [E]` still reads fine.
 
 #### Song structure and chord progressions (portable hints)

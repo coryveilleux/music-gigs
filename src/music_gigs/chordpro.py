@@ -291,16 +291,78 @@ def _is_chord_only_line(line: str) -> bool:
     return not re.search(r"[A-Za-z]{2,}", remainder)
 
 
-def _chords_from_bar_notation(text: str) -> list[str]:
+def _parse_bar_measures(text: str) -> tuple[list[str], int]:
+    """One chord per |measure|; optional (x2) / x2 repeat suffix applies to the whole line."""
+    repeat = 1
+    repeat_match = _REPEAT_SUFFIX_RE.search(text)
+    if repeat_match:
+        repeat = int(repeat_match.group(1))
+        text = text[: repeat_match.start()].strip()
     chords: list[str] = []
-    for match in _BAR_CHORD_RE.finditer(text):
-        cell = match.group(1).strip()
-        if not cell:
+    for segment in text.split("|"):
+        segment = segment.strip()
+        if not segment or segment.startswith("("):
             continue
-        for token in cell.split():
+        for token in segment.split():
             if re.match(r"^[A-G]", token):
                 chords.append(token)
-    return chords
+                break
+    return chords, repeat
+
+
+def _chords_from_bar_notation(text: str) -> list[str]:
+    chords, repeat = _parse_bar_measures(text)
+    if not chords:
+        return []
+    return chords * repeat
+
+
+def _compact_repeated_measures(measures: list[str]) -> list[dict[str, Any]]:
+    """Turn |D|D| or |D|G|D|G| into D (×2) / D G (×2) for structure view."""
+    count = len(measures)
+    if not count:
+        return []
+    for period in range(1, count + 1):
+        if count % period:
+            continue
+        pattern = measures[:period]
+        reps = count // period
+        if reps < 2:
+            continue
+        if all(measures[index : index + period] == pattern for index in range(0, count, period)):
+            return [{"chords": pattern, "repeat": reps}]
+    return [{"chords": measures, "repeat": 1}]
+
+
+def _compact_from_bar_notation(text: str) -> list[dict[str, Any]]:
+    chords, repeat = _parse_bar_measures(text)
+    if not chords:
+        return []
+    measures = chords * repeat
+    return _compact_repeated_measures(measures)
+
+
+def _compact_from_lyric_line_pairs(
+    chord_lines: list[list[dict[str, Any]]],
+) -> list[dict[str, Any]] | None:
+    """Pair consecutive lyric chord rows (e.g. D G + D A → D G D A)."""
+    groups = [
+        [entry["chord"] for entry in line if entry.get("chord")]
+        for line in chord_lines
+        if line
+    ]
+    if len(groups) < 2 or len(groups) % 2 != 0:
+        return None
+    if not all(len(group) >= 2 for group in groups):
+        return None
+    pairs = [groups[index] + groups[index + 1] for index in range(0, len(groups), 2)]
+    collapsed: list[dict[str, Any]] = []
+    for pair in pairs:
+        if collapsed and collapsed[-1]["chords"] == pair:
+            collapsed[-1]["repeat"] += 1
+        else:
+            collapsed.append({"chords": pair, "repeat": 1})
+    return collapsed
 
 
 def _parse_section_line(
@@ -715,6 +777,27 @@ def _compact_flat_sequence(chord_seq: list[str]) -> list[dict[str, Any]]:
     return [{"chords": row, "repeat": 1} for row in rows]
 
 
+def _compact_sparse_lyric_progression(
+    rows: list[list[str]], chord_seq: list[str]
+) -> list[dict[str, Any]] | None:
+    """One chord per lyric line (or a short tag) → G Am Em Cadd9, not a vertical list."""
+    if not chord_seq or not rows:
+        return None
+    flat = [chord for row in rows for chord in row]
+    if flat != chord_seq:
+        return None
+    if all(len(row) == 1 for row in rows):
+        return _compact_flat_sequence(chord_seq)
+    if (
+        len(rows) >= 3
+        and len(rows) <= 4
+        and max(len(row) for row in rows) <= 2
+        and len(chord_seq) <= 8
+    ):
+        return [{"chords": chord_seq, "repeat": 1}]
+    return None
+
+
 def _detect_alternating_pair_pattern(rows: list[list[str]]) -> list[dict[str, Any]] | None:
     if len(rows) < 4 or len(rows) % 2 != 0:
         return None
@@ -733,29 +816,46 @@ def compact_chord_rows(
     chord_lines: list[list[dict[str, Any]]],
     chord_seq: list[str],
     progression_override: str | None = None,
+    bar_texts: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     """Group chords into compact rows for structure view, collapsing repeated patterns."""
     if progression_override:
         return progression_to_compact_rows(parse_progression_spec(progression_override))
 
-    if chord_seq:
-        detected = detect_repeating_progression(chord_seq)
-        if detected.get("source") == "detected":
-            return progression_to_compact_rows(detected)
+    bar_rows: list[dict[str, Any]] = []
+    if bar_texts:
+        for text in bar_texts:
+            bar_rows.extend(_compact_from_bar_notation(text))
+
+    if bar_rows and not chord_lines:
+        return bar_rows
+
+    paired = _compact_from_lyric_line_pairs(chord_lines)
+    if paired:
+        return paired + bar_rows
 
     rows: list[list[str]] = [
         [entry["chord"] for entry in line] for line in chord_lines if line
     ]
 
+    if chord_seq:
+        detected = detect_repeating_progression(chord_seq)
+        if detected.get("source") == "detected":
+            return progression_to_compact_rows(detected) + bar_rows
+
+    sparse = _compact_sparse_lyric_progression(rows, chord_seq)
+    if sparse:
+        return sparse + bar_rows
+
     if not rows and chord_seq:
-        return progression_to_compact_rows(detect_repeating_progression(chord_seq))
+        return progression_to_compact_rows(detect_repeating_progression(chord_seq)) + bar_rows
 
     if not rows:
-        return []
+        return bar_rows
 
     alternating = _detect_alternating_pair_pattern(rows)
     if alternating:
-        return alternating
+        return alternating + bar_rows
 
     collapsed: list[tuple[list[str], int]] = []
     for row in rows:
@@ -770,7 +870,7 @@ def compact_chord_rows(
         for idx, split in enumerate(split_rows):
             repeat = count if idx == len(split_rows) - 1 else 1
             result.append({"chords": split, "repeat": repeat})
-    return result
+    return result + bar_rows
 
 
 def section_outline_from_structured(
@@ -788,6 +888,7 @@ def section_outline_from_structured(
         lyrics: list[str] = []
         chord_seq: list[str] = []
         chord_lines: list[list[dict[str, Any]]] = []
+        bar_texts: list[str] = []
         notes: list[str] = []
 
         for block in section.get("blocks", []):
@@ -827,11 +928,9 @@ def section_outline_from_structured(
                 )
             elif kind == "bars":
                 notes.append(block["text"])
+                bar_texts.append(block["text"])
                 bar_chords = _chords_from_bar_notation(block["text"])
                 if bar_chords:
-                    chord_lines.append(
-                        [{"chord": chord, "pos": idx * 4} for idx, chord in enumerate(bar_chords)]
-                    )
                     chord_seq.extend(bar_chords)
             elif kind == "note":
                 text = block["text"]
@@ -862,6 +961,7 @@ def section_outline_from_structured(
                     chord_lines,
                     chord_seq,
                     progression_override=override,
+                    bar_texts=bar_texts,
                 ),
                 "progression_source": "override" if override else "detected",
                 "start": _word_hint(full_lyrics),

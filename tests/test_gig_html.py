@@ -2,6 +2,7 @@ from pathlib import Path
 
 from music_gigs.chordpro import (
     _chord_positions,
+    _compact_from_bar_notation,
     chordpro_to_structured,
     compact_chord_rows,
     detect_repeating_progression,
@@ -153,10 +154,51 @@ def test_compact_chord_rows():
         ],
         [],
     )
-    assert repeated[0]["chords"] == ["D", "G"]
-    assert repeated[1]["chords"] == ["D", "A"]
-    assert repeated[0]["repeat"] == 1
-    assert repeated[1]["repeat"] == 2
+    assert repeated == [{"chords": ["D", "G", "D", "A"], "repeat": 2}]
+
+
+def test_bar_notation_compact_variants():
+    assert _compact_from_bar_notation("| D / / / | (x2)") == [{"chords": ["D"], "repeat": 2}]
+    assert _compact_from_bar_notation("| D / / / | x2") == [{"chords": ["D"], "repeat": 2}]
+    assert _compact_from_bar_notation("| D / / / | D / / / |") == [{"chords": ["D"], "repeat": 2}]
+    assert _compact_from_bar_notation("| D / / / | G / / / | (x2)") == [
+        {"chords": ["D", "G"], "repeat": 2}
+    ]
+    assert _compact_from_bar_notation("| D / / / | G / / / | D / / / | G / / / |") == [
+        {"chords": ["D", "G"], "repeat": 2}
+    ]
+
+
+def test_more_than_my_hometown_sparse_sections():
+    root = Path(__file__).resolve().parents[1]
+    chart = (root / "BailMoneyBand/charts/more-than-my-hometown.chopro").read_text(
+        encoding="utf-8"
+    )
+    outline = section_outline_from_structured(chordpro_to_structured(parse_chordpro(chart)), {})
+    verse2 = next(s for s in outline if s["type"] == "verse" and s["number"] == 2)
+    bridge = next(s for s in outline if s["type"] == "bridge")
+    tag = next(s for s in outline if s["type"] == "tag")
+    progression = [{"chords": ["G", "Am", "Em", "Cadd9"], "repeat": 1}]
+    assert verse2["chord_compact"] == progression
+    assert bridge["chord_compact"] == progression
+    assert tag["chord_compact"] == [{"chords": ["G", "Am", "Em", "Cadd9", "G"], "repeat": 1}]
+
+
+def test_buy_me_a_boat_structure_compact():
+    root = Path(__file__).resolve().parents[1]
+    chart = (root / "BailMoneyBand/charts/buy-me-a-boat.chopro").read_text(encoding="utf-8")
+    structured = chordpro_to_structured(parse_chordpro(chart))
+    outline = section_outline_from_structured(structured, {})
+    intro = next(s for s in outline if s["type"] == "intro")
+    outro = next(s for s in outline if s["type"] == "outro")
+    chorus3 = next(s for s in outline if s["type"] == "chorus" and s["number"] == 3)
+    assert intro["chord_compact"] == [{"chords": ["D"], "repeat": 2}]
+    assert outro["chord_compact"] == [{"chords": ["D", "G"], "repeat": 2}]
+    assert chorus3["chord_compact"] == [
+        {"chords": ["D", "G", "D", "A"], "repeat": 1},
+        {"chords": ["D", "G", "D", "A", "D", "G"], "repeat": 1},
+        {"chords": ["D", "G", "D", "A"], "repeat": 1},
+    ]
 
 
 def test_section_numbering():

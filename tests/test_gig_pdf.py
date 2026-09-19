@@ -39,7 +39,9 @@ def test_chord_lyric_line_does_not_wrap_in_pdf():
     layout = SongLayout.from_scale(1.0)
     main_x, main_w, _, _ = pdf.column_geometry()
     y0 = pdf.get_y()
-    pdf.render_tight_lyric(block, main_x, main_w, layout, song.get("key") or "D")
+    pdf.render_tight_lyric(
+        block, main_x, main_w, layout, song.get("key") or "D", song_first_page=1
+    )
     # One chord row + one lyric row (not wrapped mid-line).
     assert pdf.get_y() - y0 < 20
 

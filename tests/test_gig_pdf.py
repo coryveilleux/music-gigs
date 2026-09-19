@@ -46,6 +46,35 @@ def test_chord_lyric_line_does_not_wrap_in_pdf():
     assert pdf.get_y() - y0 < 20
 
 
+def test_long_lyric_wraps_inside_column_width():
+    from music_gigs.gig_pdf import GigBookPDF, SongLayout
+
+    pdf = GigBookPDF()
+    pdf.add_page()
+    layout = SongLayout.from_scale(1.0)
+    segments = [{"text": "A" * 80, "harmony": True, "direction": False}]
+    rows = pdf._count_wrapped_segment_rows(segments, 40.0, layout.lyric)
+    assert rows > 1
+
+
+def test_render_tight_lyric_keeps_column_x():
+    from music_gigs.gig_pdf import GigBookPDF, SongLayout
+
+    pdf = GigBookPDF()
+    pdf.add_page()
+    pdf.set_y(40)
+    main_x, main_w, _, _ = pdf.column_geometry()
+    right_x = main_x + main_w / 2 + 2
+    col_w = (main_w - 2) / 2
+    block = {
+        "kind": "lyric",
+        "lyrics": "Hello [G]world",
+        "chords": [{"chord": "G", "pos": 6, "cue": ""}],
+    }
+    pdf.render_tight_lyric(block, right_x, col_w, SongLayout.from_scale(1.0), "G", 1)
+    assert pdf.get_x() >= right_x - 0.5
+
+
 def test_buy_me_a_boat_chart_page_count():
     root = Path(__file__).resolve().parents[1]
     band_dir = root / "BailMoneyBand"
@@ -57,7 +86,7 @@ def test_buy_me_a_boat_chart_page_count():
     pdf = GigBookPDF()
     pdf.add_page()
     pdf.render_song(song)
-    assert len(pdf.pages) <= 2
+    assert len(pdf.pages) == 1
 
 
 def test_render_stone_cow_pdf_prototype():

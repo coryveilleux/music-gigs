@@ -11,8 +11,9 @@ from music_gigs.chordpro import _build_chord_line, section_display_title
 
 MAIN_WIDTH_FRAC = 0.70
 SIDEBAR_WIDTH_FRAC = 0.28
-MIN_LAYOUT_SCALE = 0.62
-MAX_SONG_PAGES = 2
+MIN_LAYOUT_SCALE = 0.42
+MAX_SONG_PAGES = 1
+MIN_LYRIC_FONT_PT = 5.0
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,7 @@ class GigPdfTheme:
 @dataclass(frozen=True)
 class SongLayout:
     scale: float
+    columns: int = 1
     title: float = 14
     meta: float = 9
     section: float = 10
@@ -42,9 +44,10 @@ class SongLayout:
     sidebar: float = 8
 
     @classmethod
-    def from_scale(cls, scale: float) -> SongLayout:
+    def from_scale(cls, scale: float, *, columns: int = 1) -> SongLayout:
         return cls(
             scale=scale,
+            columns=columns,
             title=14 * scale,
             meta=9 * scale,
             section=10 * scale,
@@ -58,7 +61,23 @@ class SongLayout:
 DEFAULT_THEME = GigPdfTheme()
 MONO = "Courier"
 SANS = "Helvetica"
-_SCALE_STEPS = (1.0, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.62)
+_SCALE_STEPS = (
+    1.0,
+    0.95,
+    0.9,
+    0.85,
+    0.8,
+    0.75,
+    0.7,
+    0.65,
+    0.62,
+    0.58,
+    0.55,
+    0.52,
+    0.48,
+    0.45,
+    0.42,
+)
 
 _UNICODE_REPLACEMENTS = {
     "\u2019": "'",
@@ -136,6 +155,7 @@ class GigBookPDF(FPDF):
     def __init__(self, theme: GigPdfTheme = DEFAULT_THEME) -> None:
         super().__init__(format="Letter", unit="mm")
         self.theme = theme
+        self._single_song_page = False
         self.set_auto_page_break(auto=True, margin=18)
         self.set_margins(left=12, top=14, right=12)
 
@@ -205,12 +225,21 @@ class GigBookPDF(FPDF):
     ) -> float:
         lyric = _lyric_plain(block)
         chords = block.get("chords") or []
-        height = 0.0
-        chord_h = _line_height_mm(layout.chord)
-        lyric_h = _line_height_mm(layout.lyric)
+        segments = _lyric_segments(block)
+        song_key_val = song_key or "C"
         if chords:
-            height += chord_h + 0.25
-        height += self._text_height(lyric, width, lyric_h, MONO, "", layout.lyric)
+            chord_line = _build_chord_line(lyric, chords, song_key_val).rstrip()
+            lyric_size = self._fit_mono_line_font_size(
+                [lyric, chord_line], width, layout.lyric
+            )
+        else:
+            lyric_size = self._fit_mono_line_font_size([lyric], width, layout.lyric)
+        lyric_h = _line_height_mm(lyric_size)
+        rows = self._count_wrapped_segment_rows(segments, width, lyric_size)
+        height = rows * lyric_h
+        if chords:
+            chord_h = _line_height_mm(lyric_size)
+            height += chord_h + 0.4
         return height + 0.5
 
     def estimate_block_height(
@@ -270,29 +299,236 @@ class GigBookPDF(FPDF):
             height += 0.5
         return height
 
+    def estimate_section_height(
+        self,
+        section: dict[str, Any],
+        layout: SongLayout,
+        song_key: str,
+        main_w: float,
+        *,
+        include_divider: bool,
+    ) -> float:
+        height = 0.0
+        if include_divider:
+            height += 1.35
+        height += layout.section * 0.48 + 0.3
+        label = section_display_title(
+            section.get("type", ""),
+            section.get("label") or "",
+            section.get("number"),
+        )
+        height += self._text_height(
+            label, main_w, layout.section * 0.48, SANS, "B", layout.section
+        )
+        height += 0.15
+        for item in _group_blocks(section.get("blocks") or []):
+            height += self.estimate_block_height(item, layout, song_key, main_w)
+            if item[1].get("kind") == "lyric":
+                height += 0.1
+        height += 0.3
+        return height
+
+    def _chart_sections(self, song: dict[str, Any]) -> list[dict[str, Any]]:
+        return [
+            section
+            for section in song.get("sections") or []
+            if section.get("type") != "comment"
+        ]
+
+    def _partition_sections_two_column(
+        self,
+        sections: list[dict[str, Any]],
+        layout: SongLayout,
+        song_key: str,
+        column_width: float,
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        if len(sections) < 2:
+            return sections, []
+        heights = [
+            self.estimate_section_height(
+                section, layout, song_key, column_width, include_divider=index > 0
+            )
+            for index, section in enumerate(sections)
+        ]
+        total = sum(heights)
+        target = total / 2
+        left: list[dict[str, Any]] = []
+        right: list[dict[str, Any]] = []
+        left_h = 0.0
+        for section, height in zip(sections, heights):
+            if not right and left_h + height <= target:
+                left.append(section)
+                left_h += height
+            else:
+                right.append(section)
+        if not left:
+            left = [sections[0]]
+            right = sections[1:]
+        return left, right
+
+    def _render_chart_section(
+        self,
+        section: dict[str, Any],
+        layout: SongLayout,
+        song_key: str,
+        main_x: float,
+        main_w: float,
+        song_first_page: int,
+        *,
+        chart_section_started: bool,
+    ) -> bool:
+        if chart_section_started:
+            self.draw_section_divider(main_x, main_w)
+
+        label = section_display_title(
+            section.get("type", ""),
+            section.get("label") or "",
+            section.get("number"),
+        )
+        self.set_x(main_x)
+        self.set_font(SANS, "B", size=layout.section)
+        self.set_text_color(*self.theme.accent)
+        self.multi_cell(
+            main_w,
+            layout.section * 0.48,
+            _pdf_text(label),
+            new_x=XPos.LEFT,
+            new_y=YPos.NEXT,
+        )
+        self._advance_in_column(main_x, 0.15)
+
+        for item in _group_blocks(section.get("blocks") or []):
+            block = item[1]
+            kind = block.get("kind")
+            if kind in {"note", "harmony"}:
+                self.draw_info_box(block.get("text", ""), layout, main_w, main_x)
+            elif kind in {"bars", "chord_line"}:
+                text = block.get("text", "")
+                if kind == "chord_line":
+                    text = "  ".join(
+                        entry.get("chord", "")
+                        for entry in block.get("chords", [])
+                        if entry.get("chord")
+                    )
+                self.set_x(main_x)
+                self.set_font(MONO, "B", size=layout.chord)
+                self.set_text_color(*self.theme.accent)
+                self.multi_cell(
+                    main_w,
+                    _line_height_mm(layout.chord),
+                    _pdf_text(text),
+                    new_x=XPos.LEFT,
+                    new_y=YPos.NEXT,
+                )
+                self._advance_in_column(main_x, 0.15)
+            elif kind == "lyric":
+                self.render_tight_lyric(
+                    block, main_x, main_w, layout, song_key, song_first_page
+                )
+                self._advance_in_column(main_x, 0.1)
+            elif kind in {"tab", "abc"}:
+                label_text = block.get("label") or kind
+                body = (block.get("text") or "").strip()
+                preview = "\n".join(body.splitlines()[:6])
+                self.draw_info_box(f"{label_text}\n{preview}", layout, main_w, main_x)
+
+        self._advance_in_column(main_x, 0.15)
+        return True
+
+    def _render_chart_column(
+        self,
+        sections: list[dict[str, Any]],
+        layout: SongLayout,
+        song_key: str,
+        column_x: float,
+        column_w: float,
+        y_start: float,
+        song_first_page: int,
+    ) -> float:
+        self.set_xy(column_x, y_start)
+        started = False
+        for section in sections:
+            started = self._render_chart_section(
+                section,
+                layout,
+                song_key,
+                column_x,
+                column_w,
+                song_first_page,
+                chart_section_started=started,
+            )
+        return self.get_y()
+
+    def measure_rendered_song_height(
+        self, song: dict[str, Any], layout: SongLayout
+    ) -> tuple[float, int]:
+        probe = GigBookPDF(theme=self.theme)
+        probe.add_page()
+        probe._single_song_page = True
+        probe.set_auto_page_break(False)
+        body_top = probe.song_body_top()
+        probe.render_song(song, layout=layout)
+        return probe.get_y() - body_top, probe.page_no()
+
     def choose_song_layout(self, song: dict[str, Any]) -> SongLayout:
-        single_page = self.available_song_height()
-        multi_budget = single_page * MAX_SONG_PAGES - 12
-        for step in _SCALE_STEPS:
-            if step < MIN_LAYOUT_SCALE:
-                continue
-            layout = SongLayout.from_scale(step)
-            if self.estimate_song_height(song, layout) <= single_page:
-                return layout
-        for step in _SCALE_STEPS:
-            if step < MIN_LAYOUT_SCALE:
-                continue
-            layout = SongLayout.from_scale(step)
-            if self.estimate_song_height(song, layout) <= multi_budget:
-                return layout
-        return SongLayout.from_scale(MIN_LAYOUT_SCALE)
+        budget = self.available_song_height()
+        chosen = SongLayout.from_scale(MIN_LAYOUT_SCALE, columns=2)
+        for columns in (1, 2):
+            for step in _SCALE_STEPS:
+                if step < MIN_LAYOUT_SCALE:
+                    continue
+                layout = SongLayout.from_scale(step, columns=columns)
+                used, pages = self.measure_rendered_song_height(song, layout)
+                if pages == 1 and used <= budget:
+                    return layout
+                chosen = layout
+        return chosen
 
     def draw_section_divider(self, x: float, width: float) -> None:
         y = self.get_y() + 0.35
         self.set_draw_color(*self.theme.note_border)
         self.set_line_width(0.12)
         self.line(x, y, x + width, y)
-        self.ln(1.0)
+        self.set_xy(x, y + 1.0)
+
+    def _split_mono_text(self, text: str, max_width: float, size: float) -> list[str]:
+        if not text:
+            return []
+        if self._lyric_text_width(text, size) <= max_width:
+            return [text]
+        lines: list[str] = []
+        current = ""
+        for char in text:
+            trial = current + char
+            if self._lyric_text_width(trial, size) <= max_width:
+                current = trial
+            else:
+                if current:
+                    lines.append(current)
+                current = char
+        if current:
+            lines.append(current)
+        return lines
+
+    def _count_wrapped_segment_rows(
+        self,
+        segments: list[dict[str, Any]],
+        column_width: float,
+        lyric_size: float,
+    ) -> int:
+        inner = self._lyric_inner_max_width(column_width)
+        rows = 0
+        row_width = 0.0
+        for segment in segments:
+            for piece in self._split_mono_text(segment.get("text", ""), inner, lyric_size):
+                piece_w = self._lyric_text_width(piece, lyric_size)
+                if row_width + piece_w > inner and row_width > 0:
+                    rows += 1
+                    row_width = 0.0
+                row_width += piece_w
+        if row_width > 0:
+            rows += 1
+        return max(1, rows)
 
     def _render_styled_mono_line(
         self,
@@ -302,39 +538,56 @@ class GigBookPDF(FPDF):
         lyric_h: float,
         segments: list[dict[str, Any]],
         lyric_size: float,
-    ) -> None:
-        """Paint lyrics segment-by-segment (harmony color + underline) without shifting columns."""
+    ) -> float:
+        """Paint lyrics in-column; wrap to additional rows instead of bleeding sideways."""
         margin = self.c_margin
-        # One left inset to match the chord row; zero margin between segment cells.
         self.c_margin = 0
-        self.set_xy(x + margin, y)
+        inner = max(8.0, line_w - 2 * margin)
+        cur_y = y
+        row_width = 0.0
+        row_started = False
+
+        def flush_row() -> None:
+            nonlocal row_width, row_started
+            row_width = 0.0
+            row_started = False
+
         try:
             for segment in segments:
                 text = segment.get("text", "")
                 if not text:
                     continue
-                self.set_font(MONO, size=lyric_size)
-                if segment.get("harmony"):
-                    self.set_text_color(*self.theme.harmony)
-                else:
-                    self.set_text_color(*self.theme.text)
-                seg_w = self.get_string_width(_pdf_text(text))
-                x_start = self.get_x()
-                self.cell(
-                    seg_w,
-                    lyric_h,
-                    _pdf_text(text),
-                    new_x=XPos.RIGHT,
-                    new_y=YPos.TOP,
-                )
-                if segment.get("harmony"):
-                    underline_y = y + lyric_h - 0.55
-                    self.set_draw_color(*self.theme.harmony)
-                    self.set_line_width(0.1)
-                    self.line(x_start, underline_y, x_start + seg_w, underline_y)
+                harmony = bool(segment.get("harmony"))
+                for piece in self._split_mono_text(text, inner, lyric_size):
+                    piece_w = self._lyric_text_width(piece, lyric_size)
+                    if row_started and row_width + piece_w > inner:
+                        cur_y += lyric_h
+                        flush_row()
+                    draw_x = x + margin + row_width
+                    self.set_font(MONO, size=lyric_size)
+                    if harmony:
+                        self.set_text_color(*self.theme.harmony)
+                    else:
+                        self.set_text_color(*self.theme.text)
+                    self.set_xy(draw_x, cur_y)
+                    self.cell(
+                        piece_w,
+                        lyric_h,
+                        _pdf_text(piece),
+                        new_x=XPos.RIGHT,
+                        new_y=YPos.TOP,
+                    )
+                    if harmony:
+                        underline_y = cur_y + lyric_h - 0.55
+                        self.set_draw_color(*self.theme.harmony)
+                        self.set_line_width(0.1)
+                        self.line(draw_x, underline_y, draw_x + piece_w, underline_y)
+                    row_width += piece_w
+                    row_started = True
         finally:
             self.c_margin = margin
-        self.set_xy(x, y + lyric_h)
+        self.set_xy(x, cur_y + lyric_h)
+        return cur_y + lyric_h - y
 
     def draw_info_box(self, text: str, layout: SongLayout, width: float, x: float) -> None:
         if not text.strip():
@@ -355,7 +608,7 @@ class GigBookPDF(FPDF):
             new_x=XPos.LEFT,
             new_y=YPos.NEXT,
         )
-        self.ln(0.5)
+        self._advance_in_column(x, 0.5)
 
     def _lyric_text_width(self, text: str, size: float) -> float:
         self.set_font(MONO, size=size)
@@ -364,11 +617,24 @@ class GigBookPDF(FPDF):
     def _lyric_inner_max_width(self, column_width: float) -> float:
         return max(10.0, column_width - 2 * self.c_margin)
 
+    def _advance_in_column(self, column_x: float, dy: float) -> None:
+        self.set_xy(column_x, self.get_y() + dy)
+
     def _ensure_vertical_space(
-        self, height: float, song_first_page: int
+        self,
+        height: float,
+        song_first_page: int,
+        *,
+        column_x: float | None = None,
+        column_w: float | None = None,
     ) -> tuple[float, float]:
-        if self.get_y() + height > self.song_body_bottom():
+        if (
+            not self._single_song_page
+            and self.get_y() + height > self.song_body_bottom()
+        ):
             self.add_page()
+        if column_x is not None and column_w is not None:
+            return column_x, column_w
         return self.lyric_column(song_first_page)
 
     def _fit_mono_line_font_size(
@@ -376,7 +642,7 @@ class GigBookPDF(FPDF):
     ) -> float:
         inner_max = self._lyric_inner_max_width(column_width)
         size = base_size
-        while size > 7:
+        while size > MIN_LYRIC_FONT_PT:
             if all(self._lyric_text_width(line, size) <= inner_max for line in lines if line):
                 return size
             size -= 0.5
@@ -395,51 +661,60 @@ class GigBookPDF(FPDF):
         lyric = _lyric_plain(block)
         chords = block.get("chords") or []
         segments = _lyric_segments(block)
-        if not chords:
-            lyric_size = self._fit_mono_line_font_size([lyric], width, layout.lyric)
-            lyric_h = _line_height_mm(lyric_size)
-            x, width = self._ensure_vertical_space(lyric_h + 0.2, song_first_page)
-            y0 = self.get_y()
-            self._render_styled_mono_line(x, y0, width, lyric_h, segments, lyric_size)
-            return self.get_y() - y0
-
+        column_x, column_w = x, width
         key = song_key or "C"
-        lyric_size = self._fit_mono_line_font_size([lyric], width, layout.lyric)
-        chord_line = _build_chord_line(lyric, chords, key).rstrip()
-        lyric_size = self._fit_mono_line_font_size([lyric, chord_line], width, lyric_size)
-        chord_line = _build_chord_line(lyric, chords, key).rstrip()
-        chord_h = _line_height_mm(lyric_size)
-        lyric_h = _line_height_mm(lyric_size)
-        pair_h = chord_h + 0.15 + lyric_h + 0.2
-        x, width = self._ensure_vertical_space(pair_h, song_first_page)
-        y0 = self.get_y()
-        line_w = (
-            max(
-                self._lyric_text_width(chord_line, lyric_size),
-                self._lyric_text_width(lyric, lyric_size),
+        chord_line = ""
+        if chords:
+            chord_line = _build_chord_line(lyric, chords, key).rstrip()
+            lyric_size = self._fit_mono_line_font_size(
+                [lyric, chord_line], width, layout.lyric
             )
-            + 2 * self.c_margin
+            chord_line = _build_chord_line(lyric, chords, key).rstrip()
+        else:
+            lyric_size = self._fit_mono_line_font_size([lyric], width, layout.lyric)
+
+        lyric_h = _line_height_mm(lyric_size)
+        lyric_rows = self._count_wrapped_segment_rows(segments, width, lyric_size)
+        lyric_block_h = lyric_rows * lyric_h
+        chord_h = _line_height_mm(lyric_size) if chords else 0.0
+        pair_h = lyric_block_h + (chord_h + 0.35 if chords else 0.0) + 0.2
+        x, width = self._ensure_vertical_space(
+            pair_h,
+            song_first_page,
+            column_x=column_x,
+            column_w=column_w,
         )
+        y0 = self.get_y()
 
         self.set_auto_page_break(False)
         try:
-            self.set_xy(x, y0)
-            self.set_font(MONO, size=lyric_size)
-            self.set_text_color(*self.theme.accent)
-            self.cell(
-                line_w,
-                chord_h,
-                _pdf_text(chord_line),
-                align=Align.L,
-                new_x=XPos.LEFT,
-                new_y=YPos.NEXT,
+            y_cursor = y0
+            if chords:
+                self.set_xy(x, y_cursor)
+                self.set_font(MONO, size=lyric_size)
+                self.set_text_color(*self.theme.accent)
+                for chord_row in self._split_mono_text(
+                    chord_line, self._lyric_inner_max_width(width), lyric_size
+                ):
+                    row_w = self._lyric_text_width(chord_row, lyric_size)
+                    self.set_xy(x, y_cursor)
+                    self.cell(
+                        row_w,
+                        chord_h,
+                        _pdf_text(chord_row),
+                        align=Align.L,
+                        new_x=XPos.LEFT,
+                        new_y=YPos.TOP,
+                    )
+                    y_cursor += chord_h
+                y_cursor += 0.15
+            lyric_used = self._render_styled_mono_line(
+                x, y_cursor, width, lyric_h, segments, lyric_size
             )
-            y_lyric = self.get_y() + 0.15
-            self._render_styled_mono_line(
-                x, y_lyric, line_w, lyric_h, segments, lyric_size
-            )
+            self.set_xy(x, y_cursor + lyric_used)
         finally:
-            self.set_auto_page_break(True, margin=14)
+            if not self._single_song_page:
+                self.set_auto_page_break(True, margin=14)
         return self.get_y() - y0
 
     def render_song_structure_sidebar(
@@ -512,6 +787,11 @@ class GigBookPDF(FPDF):
         _, _, sidebar_x, sidebar_w = self.column_geometry()
         song_key = song.get("key") or "C"
         song_first_page = self.page_no()
+        prior_single = self._single_song_page
+        prior_break = self.auto_page_break
+        prior_margin = self.b_margin
+        self._single_song_page = True
+        self.set_auto_page_break(False)
 
         full_w = self.content_width()
         self.set_y(self.song_body_top())
@@ -548,73 +828,60 @@ class GigBookPDF(FPDF):
 
         self.ln(0.6)
 
-        chart_section_started = False
+        main_x, main_w = self.lyric_column(song_first_page)
         for section in song.get("sections") or []:
-            main_x, main_w = self.lyric_column(song_first_page)
             if section.get("type") == "comment":
                 for block in section.get("blocks") or []:
                     if block.get("kind") == "note":
                         self.draw_info_box(block.get("text", ""), layout, main_w, main_x)
                 continue
 
-            if chart_section_started:
-                self.draw_section_divider(main_x, main_w)
-            chart_section_started = True
-
-            label = section_display_title(
-                section.get("type", ""),
-                section.get("label") or "",
-                section.get("number"),
+        chart_sections = self._chart_sections(song)
+        if layout.columns >= 2 and len(chart_sections) >= 2:
+            gutter = 4.0
+            col_w = (main_w - gutter) / 2
+            left_x = main_x
+            right_x = main_x + col_w + gutter
+            left_secs, right_secs = self._partition_sections_two_column(
+                chart_sections, layout, song_key, col_w
             )
-            self.set_x(main_x)
-            self.set_font(SANS, "B", size=layout.section)
-            self.set_text_color(*self.theme.accent)
-            self.multi_cell(
-                main_w,
-                layout.section * 0.48,
-                _pdf_text(label),
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
+            y_start = self.get_y()
+            y_left = self._render_chart_column(
+                left_secs,
+                layout,
+                song_key,
+                left_x,
+                col_w,
+                y_start,
+                song_first_page,
             )
-            self.ln(0.15)
+            y_right = self._render_chart_column(
+                right_secs,
+                layout,
+                song_key,
+                right_x,
+                col_w,
+                y_start,
+                song_first_page,
+            )
+            self.set_y(max(y_left, y_right))
+        else:
+            y_start = self.get_y()
+            self.set_xy(main_x, y_start)
+            started = False
+            for section in chart_sections:
+                started = self._render_chart_section(
+                    section,
+                    layout,
+                    song_key,
+                    main_x,
+                    main_w,
+                    song_first_page,
+                    chart_section_started=started,
+                )
 
-            for item in _group_blocks(section.get("blocks") or []):
-                main_x, main_w = self.lyric_column(song_first_page)
-                block = item[1]
-                kind = block.get("kind")
-                if kind in {"note", "harmony"}:
-                    self.draw_info_box(block.get("text", ""), layout, main_w, main_x)
-                elif kind in {"bars", "chord_line"}:
-                    text = block.get("text", "")
-                    if kind == "chord_line":
-                        text = "  ".join(
-                            entry.get("chord", "")
-                            for entry in block.get("chords", [])
-                            if entry.get("chord")
-                        )
-                    self.set_x(main_x)
-                    self.set_font(MONO, "B", size=layout.chord)
-                    self.set_text_color(*self.theme.accent)
-                    self.multi_cell(
-                        main_w,
-                        _line_height_mm(layout.chord),
-                        _pdf_text(text),
-                        new_x=XPos.LMARGIN,
-                        new_y=YPos.NEXT,
-                    )
-                    self.ln(0.15)
-                elif kind == "lyric":
-                    self.render_tight_lyric(
-                        block, main_x, main_w, layout, song_key, song_first_page
-                    )
-                    self.ln(0.1)
-                elif kind in {"tab", "abc"}:
-                    label_text = block.get("label") or kind
-                    body = (block.get("text") or "").strip()
-                    preview = "\n".join(body.splitlines()[:6])
-                    self.draw_info_box(f"{label_text}\n{preview}", layout, main_w, main_x)
-
-            self.ln(0.15)
+        self._single_song_page = prior_single
+        self.set_auto_page_break(prior_break, margin=prior_margin)
 
     def render_setlist(
         self,

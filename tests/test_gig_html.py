@@ -32,7 +32,7 @@ e|--0--|
     assert song.metadata["title"] == "Test Song"
     html = render_chordpro_html(song)
     assert "Hello world" in html
-    assert '<div class="chords">' in html
+    assert 'class="chord-track"' in html
     assert '<div class="lyrics">' in html
     assert "riff" in html.lower()
 
@@ -265,6 +265,17 @@ Turnin' some poor lost souls 'round, and Hallelujah bound>>
     assert blocks[0]["lyrics"] == lyrics0
     html = render_chordpro_html(song)
     assert html.count('class="harmony"') >= 3
+
+
+def test_buy_me_a_boat_chorus_chord_positions():
+    from music_gigs.chordpro import _chord_positions
+
+    lyrics, chords = _chord_positions("But <<it could buy me a [D (FULL BAND)]boat, "
+        "it could buy me a [G]truck to pull it")
+    d_pos = next(c["pos"] for c in chords if c["chord"] == "D")
+    g_pos = next(c["pos"] for c in chords if c["chord"] == "G")
+    assert lyrics[d_pos : d_pos + 4] == "boat"
+    assert lyrics[g_pos : g_pos + 5] == "truck"
 
 
 def test_chords_align_with_harmony_markup():

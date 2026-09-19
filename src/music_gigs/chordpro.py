@@ -894,11 +894,9 @@ def _render_lyric_line(
             f"{_render_lyric_segments_html(segments)}</div></div>"
         )
 
-    chord_line = _build_chord_line(lyric_plain, chords, song_key, transpose)
-    if show_nashville:
-        chord_html = _render_chord_track_html(chords, song_key, transpose, show_nashville=True)
-    else:
-        chord_html = f'<div class="chords">{html.escape(chord_line)}</div>'
+    chord_html = _render_chord_track_html(
+        chords, song_key, transpose, show_nashville=show_nashville
+    )
     return (
         f'<div class="lyric-row">{chord_html}'
         f'<div class="lyrics">{_render_lyric_segments_html(segments)}</div></div>'
@@ -921,11 +919,8 @@ def _render_block_html(
                 f'<div class="lyric-row lyrics-only"><div class="lyrics">'
                 f"{_render_lyric_segments_html(segments)}</div></div>"
             )
-        chord_line = _build_chord_line(lyric_plain, chords, song_key, transpose)
-        chord_html = (
-            _render_chord_track_html(chords, song_key, transpose, show_nashville=True)
-            if show_nashville
-            else f'<div class="chords">{html.escape(chord_line)}</div>'
+        chord_html = _render_chord_track_html(
+            chords, song_key, transpose, show_nashville=show_nashville
         )
         return (
             f'<div class="lyric-row">{chord_html}'

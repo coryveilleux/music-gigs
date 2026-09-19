@@ -106,6 +106,14 @@ BailMoneyBand/
 uv run scripts/build_gig_html.py BailMoneyBand sets/pilot-gig.yaml -o BailMoneyBand/gigs/pilot-gig.html
 ```
 
+**PDF gig book** (print / bandmates — set list with page links, **one song per page** with auto-sized type, monospace chord alignment, light theme):
+
+```bash
+uv run scripts/build_gig_pdf.py BailMoneyBand sets/stone-cow-2026-09-19.yaml -o BailMoneyBand/gigs/stone-cow-2026-09-19.pdf
+# Prototype (first N songs only):
+uv run scripts/build_gig_pdf.py BailMoneyBand sets/stone-cow-2026-09-19.yaml --limit 3 -o BailMoneyBand/gigs/stone-cow-prototype.pdf
+```
+
 Features: numbered set list, search, transpose, Nashville numbers, **Structure** view (chords + lyric anchors per section), **Fit page** zoom, **auto scroll** timed from track length (`duration_seconds` in `songs.yaml`), `{tempo: N}`, or per-chart scroll overrides (below), and **Look / Palette** theme picks on the set list (night indoor vs day outdoor, several palettes each; saved in the browser).
 
 ### Bulk chart import and restructure

@@ -403,6 +403,17 @@ def render_gig_html(gig_data: dict) -> str:
     .lyric-row .lyrics {{
       color: var(--text); white-space: pre-wrap; line-height: 1.5;
     }}
+    .lyric-row:not(.lyrics-only) {{
+      overflow-x: auto;
+      max-width: 100%;
+    }}
+    .lyric-row:not(.lyrics-only) .lyrics {{
+      white-space: pre;
+      line-height: 1.35;
+    }}
+    .lyric-row:not(.lyrics-only) .chord-track {{
+      min-width: min-content;
+    }}
     .lyric-row.lyrics-only .lyrics {{ margin-top: 0; }}
     .note, .note-block .note {{
       color: var(--note-text); font-style: italic; font-size: 1.15rem; line-height: 1.45;
@@ -860,14 +871,11 @@ def render_gig_html(gig_data: dict) -> str:
     }}
 
     function renderChordTrack(lyrics, chords, key, transpose, showNums) {{
-      if (!showNums) {{
-        const chordLine = buildChordLine(lyrics, chords, transpose);
-        return `<div class="chords">${{esc(chordLine)}}</div>`;
-      }}
+      if (!chords || !chords.length) return "";
       const markers = chords.map(entry => {{
         const chord = entry.chord ? transposeChord(entry.chord, transpose) : "";
         const cue = entry.cue || "";
-        const numeral = chord ? chordToNashville(chord, key) : "";
+        const numeral = showNums && chord ? chordToNashville(chord, key) : "";
         const chordHtml = chord ? `<span class="chord">${{esc(chord)}}</span>` : "";
         const cueHtml = cue ? `<span class="chord-cue">${{esc(cue)}}</span>` : "";
         const numHtml = numeral

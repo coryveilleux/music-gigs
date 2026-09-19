@@ -1,42 +1,62 @@
 {title: Honky Tonk Man}
 {artist: Jon Pardi}
 {key: E}
-{comment: Imported from CountryTabs — verify key and arrangement}
-{comment: Source: http://www.countrytabs.com/tablature/Dwight_Yoakam/Honky_Tonk_Man__Chord_1179/}
-{comment: Structure: V C C}
+{comment: Structure: C V C S C V C B C}
+
+{start_of_chorus}
+Well, I'm a honky tonk [E]man and I can't seem to stop
+I love to give the girls a [A]whirl to the music of an old jukebox[E]
+But when my money's all [B7]gone, I'm on the telephone singing
+Hey, [E]hey, mama can your daddy come [E]home
+{end_of_chorus}
 
 {start_of_verse}
-Honky Tonk Man
-Tabbed By Larry Mofle
+Now [E]I'm living wild and [B7]dangerously
+But [A]I've got plenty of [E]company
+When the moon comes up and the [B7]sun goes down
+[A]I can't wait to see the [E]lights of town
 {end_of_verse}
 
 {start_of_chorus}
-[E]
-I'm a Honky-Tonk Man
-[E]
-And I can't seem to stop
-[A] [E]
-Love to give the girls a whirl to the music of the old jukebox
-[B7]
-But when my money's all gone I'm on the telephone
-[A] [B7] [E]
-Singin 'Hey, hey, mama, can your daddy come home
-Well now
-[E] [B7]
-I'm living wild and dangerously
-[A] [E]
-But I've got plenty of company
-[B7]
-Moon comes up and the sun goes down
-[A] [E]
-I cant wait to see the lights of town
-Lead
+'Cause I'm a honky tonk [E]man and I can't seem to stop
+I love to give the girls a [A]whirl to the music of an old jukebox[E]
+But when my money's all [B7]gone, I'm on the telephone singing
+[E]Hey, hey, mama can your daddy come home
 {end_of_chorus}
 
+{start_of_solo}
+| E / / / | A / / / | E / / / | B7 / / / | E / / / |
+{end_of_solo}
+
 {start_of_chorus}
-Hey now
-A pretty little girl and a jug of wine
-Thats what it takes to make a honky tonk time
-Jukebox moanin those honky tonk sounds
-I cant wait to lay my money down
+'Cause I'm a honky tonk [E]man and I can't seem to stop
+I love to give the girls a [A]whirl to the music of an old jukebox[E]
+But when my money's all [B7]gone, I'm on the telephone singing
+[E]Hey, hey, mama can your daddy come home
+{end_of_chorus}
+
+{start_of_verse}
+A [E]pretty little girl and a [B7]jug of wine
+Well [A]that's what it takes to make a [E]honky tonk time
+With the jukebox moaning those [B7]honky tonk sounds
+[A]I can't wait to lay my [E]money down
+{end_of_verse}
+
+{start_of_chorus}
+'Cause I'm a honky tonk [E]man and I can't seem to stop
+I love to give the girls a [A]whirl to the music of an old jukebox[E]
+But when my money's all [B7]gone, I'm on the telephone singing
+[E]Hey, hey, mama can your daddy come home
+{end_of_chorus}
+
+{start_of_bridge}
+{c: drum fill}
+| E / / / |
+{end_of_bridge}
+
+{start_of_chorus}
+'Cause I'm a honky tonk [E]man and I can't seem to stop
+I love to give the girls a [A]whirl to the music of an old jukebox[E]
+But when my money's all [B7]gone, I'm on the telephone singing
+[E]Hey, hey, mama can your daddy come home
 {end_of_chorus}

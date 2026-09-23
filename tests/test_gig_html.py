@@ -184,6 +184,24 @@ def test_more_than_my_hometown_sparse_sections():
     assert tag["chord_compact"] == [{"chords": ["G", "Am", "Em", "Cadd9", "G"], "repeat": 1}]
 
 
+def test_outline_start_end_exclude_performance_notes():
+    text = """{title: Test}
+{key: D}
+{start_of_verse}
+{c: Soft drums only}
+First [D]line of the verse here
+Second [G]line with more words to pad
+{c: Stop on beat 1 after happiness}
+{end_of_verse}
+"""
+    structured = chordpro_to_structured(parse_chordpro(text))
+    outline = section_outline_from_structured(structured, {})
+    verse = outline[0]
+    assert "Soft drums" not in verse["start"]
+    assert "Stop on beat" not in verse["end"]
+    assert verse["end"].endswith("to pad")
+
+
 def test_section_structure_flow_orders_notes_and_chords():
     text = """{title: Test}
 {key: D}

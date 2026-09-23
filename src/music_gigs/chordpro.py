@@ -998,7 +998,7 @@ def section_outline_from_structured(
         if section_type == "comment":
             continue
 
-        lyrics: list[str] = []
+        lyric_lines: list[str] = []
         chord_seq: list[str] = []
         chord_lines: list[list[dict[str, Any]]] = []
         bar_texts: list[str] = []
@@ -1007,7 +1007,7 @@ def section_outline_from_structured(
         for block in section.get("blocks", []):
             kind = block.get("kind")
             if kind == "lyric":
-                lyrics.append(block["lyrics"])
+                lyric_lines.append(block["lyrics"])
                 line_chords = [
                     {
                         "chord": entry["chord"],
@@ -1045,19 +1045,14 @@ def section_outline_from_structured(
                 if bar_chords:
                     chord_seq.extend(bar_chords)
             elif kind == "note":
-                text = block["text"]
-                notes.append(text)
-                if section_type in {"verse", "chorus", "bridge", "pre-chorus", "pre_chorus"}:
-                    lyrics.append(text)
-            elif kind == "harmony":
-                lyrics.append(block["text"])
+                notes.append(block["text"])
             elif kind in {"tab", "abc"}:
                 label = block.get("label") or kind
                 first_line = block.get("text", "").splitlines()[0] if block.get("text") else ""
                 notes.append(f"{label}: {first_line}" if first_line else label)
 
-        full_lyrics = " ".join(lyrics).strip()
-        word_count = len(full_lyrics.split())
+        hint_lyrics = " ".join(lyric_lines).strip()
+        word_count = len(hint_lyrics.split())
         section_key = section_type.lower().replace("-", "_")
         override = section.get("progression_override")
         if not override and progression_hints:
@@ -1078,8 +1073,8 @@ def section_outline_from_structured(
                 "chord_compact": chord_compact,
                 "flow": structure_flow_from_section(section, override),
                 "progression_source": "override" if override else "detected",
-                "start": _word_hint(full_lyrics),
-                "end": _word_hint(full_lyrics, from_end=True) if word_count > _HINT_WORDS else "",
+                "start": _word_hint(hint_lyrics),
+                "end": _word_hint(hint_lyrics, from_end=True) if word_count > _HINT_WORDS else "",
                 "notes": notes,
             }
         )

@@ -89,6 +89,15 @@ def test_buy_me_a_boat_chart_page_count():
     assert len(pdf.pages) == 1
 
 
+def test_gig_pdf_footer_nav_links():
+    root = Path(__file__).resolve().parents[1]
+    band_dir = root / "BailMoneyBand"
+    set_path = band_dir / "sets" / "stone-cow-2026-09-19.yaml"
+    gig_data = build_gig_data(band_dir, set_path)
+    pdf_bytes = render_gig_pdf(gig_data, song_limit=3)
+    assert b"/Subtype /Link" in pdf_bytes or b"/Annots" in pdf_bytes
+
+
 def test_render_stone_cow_pdf_prototype():
     root = Path(__file__).resolve().parents[1]
     band_dir = root / "BailMoneyBand"

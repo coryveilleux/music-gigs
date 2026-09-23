@@ -11,9 +11,38 @@ from music_gigs.chordpro import _build_chord_line, section_display_title
 
 MAIN_WIDTH_FRAC = 0.70
 SIDEBAR_WIDTH_FRAC = 0.28
-MIN_LAYOUT_SCALE = 0.42
+MIN_LAYOUT_SCALE = 0.38
 MAX_SONG_PAGES = 1
 MIN_LYRIC_FONT_PT = 5.0
+NAV_BAR_HEIGHT_MM = 11.0
+FOOTER_RESERVE_MM = 18.0
+SETLIST_PAGE = 1
+
+
+@dataclass(frozen=True)
+class PageNav:
+    setlist_page: int = SETLIST_PAGE
+    prev_page: int | None = None
+    next_page: int | None = None
+
+
+def build_page_nav(
+    songs: list[dict[str, Any]], song_start_pages: dict[str, int]
+) -> dict[int, PageNav]:
+    """Per-page prev / set list / next targets (one page per song)."""
+    song_pages = [song_start_pages[song["slug"]] for song in songs]
+    nav: dict[int, PageNav] = {
+        SETLIST_PAGE: PageNav(
+            prev_page=None,
+            next_page=song_pages[0] if song_pages else None,
+        )
+    }
+    for index, page in enumerate(song_pages):
+        nav[page] = PageNav(
+            prev_page=song_pages[index - 1] if index > 0 else SETLIST_PAGE,
+            next_page=song_pages[index + 1] if index + 1 < len(song_pages) else None,
+        )
+    return nav
 
 
 @dataclass(frozen=True)
@@ -29,6 +58,10 @@ class GigPdfTheme:
     link: tuple[int, int, int] = (29, 78, 216)
     sidebar_fill: tuple[int, int, int] = (248, 250, 252)
     sidebar_border: tuple[int, int, int] = (203, 213, 225)
+    nav_fill: tuple[int, int, int] = (248, 250, 252)
+    nav_border: tuple[int, int, int] = (203, 213, 225)
+    nav_disabled: tuple[int, int, int] = (156, 163, 175)
+    on_accent: tuple[int, int, int] = (255, 255, 255)
 
 
 @dataclass(frozen=True)
@@ -77,6 +110,8 @@ _SCALE_STEPS = (
     0.48,
     0.45,
     0.42,
+    0.4,
+    0.38,
 )
 
 _UNICODE_REPLACEMENTS = {
@@ -156,8 +191,9 @@ class GigBookPDF(FPDF):
         super().__init__(format="Letter", unit="mm")
         self.theme = theme
         self._single_song_page = False
-        self.set_auto_page_break(auto=True, margin=18)
+        self._page_nav_by_page: dict[int, PageNav] = {}
         self.set_margins(left=12, top=14, right=12)
+        self.set_auto_page_break(auto=True, margin=FOOTER_RESERVE_MM)
 
     @contextmanager
     def _frozen_cursor(self) -> Iterator[None]:
@@ -191,7 +227,7 @@ class GigBookPDF(FPDF):
         return self.t_margin + 5
 
     def song_body_bottom(self) -> float:
-        return self.h - 13
+        return self.h - FOOTER_RESERVE_MM
 
     def available_song_height(self) -> float:
         return self.song_body_bottom() - self.song_body_top()
@@ -202,7 +238,86 @@ class GigBookPDF(FPDF):
         self.cell(0, 4, _pdf_text(f"Page {self.page_no()}"), align="C", new_x="LMARGIN", new_y="NEXT")
         self.ln(0.5)
 
+    def _draw_nav_button(
+        self,
+        x: float,
+        y: float,
+        width: float,
+        height: float,
+        label: str,
+        target_page: int | None,
+        *,
+        primary: bool = False,
+    ) -> None:
+        self.set_draw_color(*self.theme.nav_border)
+        self.set_line_width(0.2)
+        if primary and target_page is not None:
+            self.set_fill_color(*self.theme.accent)
+            text_color = self.theme.on_accent
+        elif target_page is not None:
+            self.set_fill_color(*self.theme.nav_fill)
+            text_color = self.theme.link
+        else:
+            self.set_fill_color(*self.theme.note_fill)
+            text_color = self.theme.nav_disabled
+        self.set_xy(x, y)
+        self.set_font(SANS, "B" if target_page else "", 11)
+        self.set_text_color(*text_color)
+        link = self.add_link(page=target_page) if target_page is not None else None
+        self.cell(
+            width,
+            height,
+            _pdf_text(label),
+            border=1,
+            fill=True,
+            align=Align.C,
+            link=link,
+        )
+
+    def _render_footer_nav(self, nav: PageNav) -> None:
+        gap = 1.2
+        bar_h = NAV_BAR_HEIGHT_MM
+        y0 = self.h - bar_h - 3
+        x0 = self.l_margin
+        total_w = self.content_width()
+        btn_w = (total_w - 2 * gap) / 3
+        self._draw_nav_button(
+            x0,
+            y0,
+            btn_w,
+            bar_h,
+            "Prev",
+            nav.prev_page,
+        )
+        self._draw_nav_button(
+            x0 + btn_w + gap,
+            y0,
+            btn_w,
+            bar_h,
+            "Set list",
+            nav.setlist_page,
+            primary=True,
+        )
+        self._draw_nav_button(
+            x0 + 2 * (btn_w + gap),
+            y0,
+            btn_w,
+            bar_h,
+            "Next",
+            nav.next_page,
+        )
+        self.set_font(SANS, "I", 7)
+        self.set_text_color(*self.theme.muted)
+        page_label = _pdf_text(f"p.{self.page_no()}")
+        label_w = self.get_string_width(page_label) + 2
+        self.set_xy(self.w - self.r_margin - label_w, y0 - 3.2)
+        self.cell(label_w, 3, page_label, align=Align.R)
+
     def footer(self) -> None:
+        nav = self._page_nav_by_page.get(self.page_no())
+        if nav:
+            self._render_footer_nav(nav)
+            return
         self.set_y(-11)
         self.set_font(SANS, "I", 8)
         self.set_text_color(*self.theme.muted)
@@ -974,6 +1089,7 @@ def render_gig_pdf(
     song_start_pages = {song["slug"]: index + 2 for index, song in enumerate(songs)}
 
     pdf = GigBookPDF(theme=theme)
+    pdf._page_nav_by_page = build_page_nav(songs, song_start_pages)
     pdf.add_page()
     pdf.render_setlist(gig_data, songs, song_start_pages)
 

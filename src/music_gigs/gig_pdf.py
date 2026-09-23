@@ -15,6 +15,8 @@ MIN_LAYOUT_SCALE = 0.38
 MAX_SONG_PAGES = 1
 MIN_LYRIC_FONT_PT = 5.0
 NAV_BAR_HEIGHT_MM = 11.0
+TOP_NAV_BAR_HEIGHT_MM = 8.0
+NAV_BTN_GAP_MM = 1.2
 FOOTER_RESERVE_MM = 18.0
 SETLIST_PAGE = 1
 
@@ -248,6 +250,7 @@ class GigBookPDF(FPDF):
         target_page: int | None,
         *,
         primary: bool = False,
+        font_size: float = 11,
     ) -> None:
         self.set_draw_color(*self.theme.nav_border)
         self.set_line_width(0.2)
@@ -261,7 +264,7 @@ class GigBookPDF(FPDF):
             self.set_fill_color(*self.theme.note_fill)
             text_color = self.theme.nav_disabled
         self.set_xy(x, y)
-        self.set_font(SANS, "B" if target_page else "", 11)
+        self.set_font(SANS, "B" if target_page else "", font_size)
         self.set_text_color(*text_color)
         link = self.add_link(page=target_page) if target_page is not None else None
         self.cell(
@@ -274,13 +277,16 @@ class GigBookPDF(FPDF):
             link=link,
         )
 
-    def _render_footer_nav(self, nav: PageNav) -> None:
-        gap = 1.2
-        bar_h = NAV_BAR_HEIGHT_MM
-        y0 = self.h - bar_h - 3
+    def _nav_button_geometry(self) -> tuple[float, float, float]:
         x0 = self.l_margin
         total_w = self.content_width()
-        btn_w = (total_w - 2 * gap) / 3
+        btn_w = (total_w - 2 * NAV_BTN_GAP_MM) / 3
+        return x0, btn_w, NAV_BTN_GAP_MM
+
+    def _render_footer_nav(self, nav: PageNav) -> None:
+        bar_h = NAV_BAR_HEIGHT_MM
+        y0 = self.h - bar_h - 3
+        x0, btn_w, gap = self._nav_button_geometry()
         self._draw_nav_button(
             x0,
             y0,
@@ -312,6 +318,40 @@ class GigBookPDF(FPDF):
         label_w = self.get_string_width(page_label) + 2
         self.set_xy(self.w - self.r_margin - label_w, y0 - 3.2)
         self.cell(label_w, 3, page_label, align=Align.R)
+
+    def _render_song_header_nav(
+        self,
+        nav: PageNav,
+        band_top: float,
+        after_meta_y: float,
+    ) -> None:
+        """Same 3-column grid as the footer: Set list (center) and Next (right), no Prev."""
+        x0, btn_w, gap = self._nav_button_geometry()
+        band_h = after_meta_y - band_top
+        btn_h = min(TOP_NAV_BAR_HEIGHT_MM, max(6.5, band_h - 0.4))
+        y0 = after_meta_y - btn_h - 0.15
+        if y0 < band_top:
+            y0 = band_top + 0.15
+        font_size = 9
+        self._draw_nav_button(
+            x0 + btn_w + gap,
+            y0,
+            btn_w,
+            btn_h,
+            "Set list",
+            nav.setlist_page,
+            primary=True,
+            font_size=font_size,
+        )
+        self._draw_nav_button(
+            x0 + 2 * (btn_w + gap),
+            y0,
+            btn_w,
+            btn_h,
+            "Next",
+            nav.next_page,
+            font_size=font_size,
+        )
 
     def footer(self) -> None:
         nav = self._page_nav_by_page.get(self.page_no())
@@ -909,7 +949,8 @@ class GigBookPDF(FPDF):
         self.set_auto_page_break(False)
 
         full_w = self.content_width()
-        self.set_y(self.song_body_top())
+        band_top = self.song_body_top()
+        self.set_y(band_top)
         self.set_font(SANS, "B", size=layout.title)
         self.set_text_color(*self.theme.text)
         self.set_x(self.l_margin)
@@ -920,6 +961,7 @@ class GigBookPDF(FPDF):
             new_x="LMARGIN",
             new_y="NEXT",
         )
+        after_title_y = self.get_y()
         meta_parts = [f"Set {song['set']}"]
         if song.get("artist"):
             meta_parts.append(song["artist"])
@@ -936,9 +978,12 @@ class GigBookPDF(FPDF):
             new_x=XPos.LMARGIN,
             new_y=YPos.NEXT,
         )
-
-        structure_y = self.get_y() + 0.5
+        after_meta_y = self.get_y()
+        structure_y = after_meta_y + 0.5
+        nav = self._page_nav_by_page.get(song_first_page)
         with self._frozen_cursor():
+            if nav:
+                self._render_song_header_nav(nav, band_top, after_meta_y)
             self.render_song_structure_sidebar(song, layout, sidebar_x, structure_y, sidebar_w)
 
         self.ln(0.6)
@@ -1017,7 +1062,24 @@ class GigBookPDF(FPDF):
         )
         self.set_font(SANS, size=11)
         self.set_text_color(*self.theme.muted)
+        band_top = self.get_y()
         self.multi_cell(0, 5, _pdf_text(meta), new_x="LMARGIN", new_y="NEXT")
+        band_bottom = self.get_y()
+        nav = self._page_nav_by_page.get(SETLIST_PAGE)
+        if nav and nav.next_page:
+            x0, btn_w, gap = self._nav_button_geometry()
+            btn_h = min(TOP_NAV_BAR_HEIGHT_MM, max(6.5, band_bottom - band_top))
+            y0 = band_bottom - btn_h - 0.15
+            with self._frozen_cursor():
+                self._draw_nav_button(
+                    x0 + 2 * (btn_w + gap),
+                    y0,
+                    btn_w,
+                    btn_h,
+                    "Next",
+                    nav.next_page,
+                    font_size=9,
+                )
         self.ln(3)
 
         self.set_font(SANS, "B", size=11)

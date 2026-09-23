@@ -184,6 +184,36 @@ def test_more_than_my_hometown_sparse_sections():
     assert tag["chord_compact"] == [{"chords": ["G", "Am", "Em", "Cadd9", "G"], "repeat": 1}]
 
 
+def test_section_structure_flow_orders_notes_and_chords():
+    text = """{title: Test}
+{key: D}
+{start_of_intro}
+{c: Soft intro}
+| D / / / | (x2)
+{end_of_intro}
+{start_of_chorus}
+{c: Full band}
+But it could buy me a [D]boat, it could buy me a [G]truck
+{c: Stop on beat 1}
+Well, maybe [D]so, but it could buy me a [A]boat
+{end_of_chorus}
+"""
+    structured = chordpro_to_structured(parse_chordpro(text))
+    outline = section_outline_from_structured(structured, {})
+    intro = next(s for s in outline if s["type"] == "intro")
+    chorus = next(s for s in outline if s["type"] == "chorus")
+    assert intro["flow"] == [
+        {"type": "note", "text": "Soft intro"},
+        {"type": "chords", "chords": ["D"], "repeat": 2},
+    ]
+    assert chorus["flow"] == [
+        {"type": "note", "text": "Full band"},
+        {"type": "chords", "chords": ["D", "G"], "repeat": 1},
+        {"type": "note", "text": "Stop on beat 1"},
+        {"type": "chords", "chords": ["D", "A"], "repeat": 1},
+    ]
+
+
 def test_buy_me_a_boat_structure_compact():
     root = Path(__file__).resolve().parents[1]
     chart = (root / "BailMoneyBand/charts/buy-me-a-boat.chopro").read_text(encoding="utf-8")

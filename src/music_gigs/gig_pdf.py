@@ -7,7 +7,11 @@ from typing import Any, Iterator
 from fpdf import FPDF
 from fpdf.enums import Align, XPos, YPos
 
-from music_gigs.chordpro import _build_chord_line, section_display_title
+from music_gigs.chordpro import (
+    _build_chord_line,
+    format_structure_chord_row,
+    section_display_title,
+)
 
 MAIN_WIDTH_FRAC = 0.70
 SIDEBAR_WIDTH_FRAC = 0.28
@@ -154,17 +158,31 @@ def _line_height_mm(font_pt: float, ratio: float = 0.48) -> float:
     return max(font_pt * ratio * 0.35, 3.4)
 
 
-def _sidebar_chord_lines(entry: dict[str, Any]) -> list[str]:
-    lines: list[str] = []
+def _sidebar_structure_items(entry: dict[str, Any]) -> list[tuple[str, str]]:
+    """('note'|'chords', text) in chart order for the structure sidebar."""
+    flow = entry.get("flow") or []
+    if flow:
+        items: list[tuple[str, str]] = []
+        for item in flow:
+            if item.get("type") == "note":
+                text = (item.get("text") or "").strip()
+                if text:
+                    items.append(("note", text))
+            elif item.get("type") == "chords":
+                text = format_structure_chord_row(item)
+                if text:
+                    items.append(("chords", text))
+        return items
+    lines: list[tuple[str, str]] = []
     for row in entry.get("chord_compact") or []:
-        text = " ".join(row.get("chords") or [])
-        repeat = row.get("repeat") or 1
-        if repeat > 1:
-            text = f"{text} (×{repeat})"
+        text = format_structure_chord_row(row)
         if text:
-            lines.append(text)
+            lines.append(("chords", text))
     if not lines and entry.get("chords"):
-        lines.append(" ".join(entry["chords"][:16]))
+        lines.append(("chords", " ".join(entry["chords"][:16])))
+    for note in entry.get("notes") or []:
+        if note.strip():
+            lines.append(("note", note.strip()))
     return lines
 
 
@@ -891,7 +909,9 @@ class GigBookPDF(FPDF):
         if structure:
             blocks.append(f"Form: {structure}")
         for entry in outlines:
-            section_lines = [_outline_label(entry)] + _sidebar_chord_lines(entry)
+            section_lines = [_outline_label(entry)]
+            for kind, text in _sidebar_structure_items(entry):
+                section_lines.append(text)
             blocks.append("\n".join(section_lines))
         body = "\n\n".join(blocks)
         height = self._text_height(body, width - 2.4, line_h, MONO, "", layout.sidebar) + 3
@@ -923,15 +943,18 @@ class GigBookPDF(FPDF):
                 new_x=XPos.LEFT,
                 new_y=YPos.NEXT,
             )
-            chord_lines = _sidebar_chord_lines(entry)
-            if chord_lines:
+            for kind, text in _sidebar_structure_items(entry):
                 self.set_x(x + 1.2)
-                self.set_font(MONO, size=layout.sidebar)
-                self.set_text_color(*self.theme.text)
+                if kind == "note":
+                    self.set_font(SANS, "I", size=layout.sidebar * 0.95)
+                    self.set_text_color(*self.theme.note_text)
+                else:
+                    self.set_font(MONO, size=layout.sidebar)
+                    self.set_text_color(*self.theme.text)
                 self.multi_cell(
                     width - 2.4,
                     line_h,
-                    _pdf_text("\n".join(chord_lines)),
+                    _pdf_text(text),
                     new_x=XPos.LEFT,
                     new_y=YPos.NEXT,
                 )

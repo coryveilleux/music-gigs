@@ -873,6 +873,119 @@ def compact_chord_rows(
     return result + bar_rows
 
 
+def format_structure_chord_row(row: dict[str, Any]) -> str:
+    text = " ".join(row.get("chords") or [])
+    repeat = row.get("repeat") or 1
+    if repeat > 1:
+        text = f"{text} (×{repeat})"
+    return text
+
+
+def structure_flow_from_section(
+    section: dict[str, Any],
+    progression_override: str | None = None,
+) -> list[dict[str, Any]]:
+    """Notes and chord rows in chart order for structure / sidebar views."""
+    flow: list[dict[str, Any]] = []
+    chord_lines: list[list[dict[str, Any]]] = []
+    chord_seq: list[str] = []
+    bar_texts: list[str] = []
+
+    def flush() -> None:
+        nonlocal chord_lines, chord_seq, bar_texts
+        if not chord_lines and not bar_texts and not chord_seq:
+            return
+        rows = compact_chord_rows(
+            chord_lines,
+            chord_seq,
+            progression_override=progression_override,
+            bar_texts=bar_texts or None,
+        )
+        for row in rows:
+            flow.append(
+                {
+                    "type": "chords",
+                    "chords": row["chords"],
+                    "repeat": row.get("repeat", 1),
+                }
+            )
+        chord_lines = []
+        chord_seq = []
+        bar_texts = []
+
+    for block in section.get("blocks", []):
+        kind = block.get("kind")
+        if kind == "note":
+            flush()
+            flow.append({"type": "note", "text": block["text"]})
+        elif kind == "progression":
+            flush()
+            for row in progression_to_compact_rows(parse_progression_spec(block["spec"])):
+                flow.append(
+                    {
+                        "type": "chords",
+                        "chords": row["chords"],
+                        "repeat": row.get("repeat", 1),
+                    }
+                )
+        elif kind == "bars":
+            flush()
+            for row in _compact_from_bar_notation(block["text"]):
+                flow.append(
+                    {
+                        "type": "chords",
+                        "chords": row["chords"],
+                        "repeat": row.get("repeat", 1),
+                    }
+                )
+        elif kind == "lyric":
+            line_chords = [
+                {
+                    "chord": entry["chord"],
+                    "pos": entry["pos"],
+                    "cue": entry.get("cue") or "",
+                }
+                for entry in block.get("chords", [])
+            ]
+            if line_chords:
+                chord_lines.append(line_chords)
+            chord_seq.extend(
+                entry["chord"]
+                for entry in block.get("chords", [])
+                if entry.get("chord")
+            )
+        elif kind == "chord_line":
+            line_chords = [
+                {
+                    "chord": entry["chord"],
+                    "pos": entry["pos"],
+                    "cue": entry.get("cue") or "",
+                }
+                for entry in block.get("chords", [])
+            ]
+            if line_chords:
+                chord_lines.append(line_chords)
+            chord_seq.extend(
+                entry["chord"]
+                for entry in block.get("chords", [])
+                if entry.get("chord")
+            )
+        elif kind == "harmony":
+            continue
+        elif kind in {"tab", "abc"}:
+            flush()
+            label = block.get("label") or kind
+            first_line = block.get("text", "").splitlines()[0] if block.get("text") else ""
+            flow.append(
+                {
+                    "type": "note",
+                    "text": f"{label}: {first_line}" if first_line else label,
+                }
+            )
+    flush()
+    return flow
+
+
 def section_outline_from_structured(
     structured: list[dict[str, Any]],
     progression_hints: dict[str, str] | None = None,
@@ -927,7 +1040,6 @@ def section_outline_from_structured(
                     if entry.get("chord")
                 )
             elif kind == "bars":
-                notes.append(block["text"])
                 bar_texts.append(block["text"])
                 bar_chords = _chords_from_bar_notation(block["text"])
                 if bar_chords:
@@ -950,6 +1062,12 @@ def section_outline_from_structured(
         override = section.get("progression_override")
         if not override and progression_hints:
             override = progression_hints.get(section_key) or progression_hints.get("default")
+        chord_compact = compact_chord_rows(
+            chord_lines,
+            chord_seq,
+            progression_override=override,
+            bar_texts=bar_texts,
+        )
         outline.append(
             {
                 "type": section_type,
@@ -957,12 +1075,8 @@ def section_outline_from_structured(
                 "number": section.get("number"),
                 "chords": chord_seq,
                 "chord_lines": chord_lines,
-                "chord_compact": compact_chord_rows(
-                    chord_lines,
-                    chord_seq,
-                    progression_override=override,
-                    bar_texts=bar_texts,
-                ),
+                "chord_compact": chord_compact,
+                "flow": structure_flow_from_section(section, override),
                 "progression_source": "override" if override else "detected",
                 "start": _word_hint(full_lyrics),
                 "end": _word_hint(full_lyrics, from_end=True) if word_count > _HINT_WORDS else "",

@@ -491,6 +491,10 @@ def render_gig_html(gig_data: dict) -> str:
     .outline-chord-compact .repeat {{
       color: var(--muted); font-weight: 500; font-size: 0.9em;
     }}
+    .outline-note {{
+      font-size: 0.88rem; line-height: 1.35; margin: 0.2rem 0;
+      color: var(--muted); font-style: italic;
+    }}
     .outline-hint {{
       font-size: 0.95rem; line-height: 1.45; margin: 0.35rem 0;
       color: var(--text);
@@ -945,21 +949,23 @@ def render_gig_html(gig_data: dict) -> str:
       return "";
     }}
 
+    function formatOutlineChordRow(row, key, transpose, showNums) {{
+      const chords = (row.chords || []).map(chord => {{
+        const transposed = transposeChord(chord, transpose);
+        if (!showNums) return transposed;
+        const numeral = chordToNashville(transposed, key);
+        return numeral ? `${{transposed}} (${{numeral}})` : transposed;
+      }}).join(" · ") || "—";
+      const repeat = row.repeat > 1
+        ? ` <span class="repeat">(×${{row.repeat}})</span>`
+        : "";
+      return `<p class="outline-chord-compact">${{esc(chords)}}${{repeat}}</p>`;
+    }}
+
     function renderOutlineChords(section, key, transpose, showNums) {{
       const compact = section.chord_compact || [];
       if (compact.length) {{
-        return compact.map(row => {{
-          const chords = (row.chords || []).map(chord => {{
-            const transposed = transposeChord(chord, transpose);
-            if (!showNums) return transposed;
-            const numeral = chordToNashville(transposed, key);
-            return numeral ? `${{transposed}} (${{numeral}})` : transposed;
-          }}).join(" · ") || "—";
-          const repeat = row.repeat > 1
-            ? ` <span class="repeat">(×${{row.repeat}})</span>`
-            : "";
-          return `<p class="outline-chord-compact">${{esc(chords)}}${{repeat}}</p>`;
-        }}).join("");
+        return compact.map(row => formatOutlineChordRow(row, key, transpose, showNums)).join("");
       }}
       const chords = (section.chords || []).map(chord => {{
         const transposed = transposeChord(chord, transpose);
@@ -968,6 +974,25 @@ def render_gig_html(gig_data: dict) -> str:
         return numeral ? `${{transposed}} (${{numeral}})` : transposed;
       }}).join(" · ") || "—";
       return `<p class="outline-chords">${{esc(chords)}}</p>`;
+    }}
+
+    function renderOutlineFlow(section, key, transpose, showNums) {{
+      const flow = section.flow || [];
+      if (!flow.length) {{
+        const legacyNotes = (section.notes || []).map(note =>
+          `<p class="outline-note">${{esc(note)}}</p>`
+        ).join("");
+        return legacyNotes + renderOutlineChords(section, key, transpose, showNums);
+      }}
+      return flow.map(item => {{
+        if (item.type === "note") {{
+          return `<p class="outline-note">${{esc(item.text || "")}}</p>`;
+        }}
+        if (item.type === "chords") {{
+          return formatOutlineChordRow(item, key, transpose, showNums);
+        }}
+        return "";
+      }}).join("");
     }}
 
     function renderSections(sections, key, transpose, showNums) {{
@@ -1004,10 +1029,7 @@ def render_gig_html(gig_data: dict) -> str:
       }}
       return outline.map(section => {{
         const title = sectionTitle(section.type, section.label, section.number);
-        const chordHtml = renderOutlineChords(section, key, transpose, showNums);
-        const notes = (section.notes || []).map(note =>
-          `<p class="note">${{esc(note)}}</p>`
-        ).join("");
+        const bodyHtml = renderOutlineFlow(section, key, transpose, showNums);
         const start = section.start
           ? `<p class="outline-hint"><span class="hint-label">Starts</span>${{esc(section.start)}}…</p>`
           : "";
@@ -1016,8 +1038,7 @@ def render_gig_html(gig_data: dict) -> str:
           : "";
         return `<article class="outline-section">` +
           `<h3 class="section-label">${{esc(title)}}</h3>` +
-          chordHtml +
-          notes + start + end +
+          bodyHtml + start + end +
           `</article>`;
       }}).join("");
     }}

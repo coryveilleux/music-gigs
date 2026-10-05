@@ -2,7 +2,7 @@
 """Re-fetch and restructure CountryTabs charts into sectioned ChordPro.
 
 Use this after import when charts are one big block (or need better sections).
-Skips charts you've finished (those with a Structure comment) unless --force-slug.
+Skips charts you've finished (harmonies, “chart complete”, etc.) unless --force-slug.
 
 Examples:
   # Gig setlist charts — skip Buy Me a Boat and other finished charts
@@ -33,7 +33,6 @@ from music_gigs.loader import load_song_catalog
 from music_gigs.slug import slugify
 
 ROOT = Path(__file__).resolve().parents[1]
-_STRUCTURE_RE = re.compile(r"^\{comment:\s*structure:", re.IGNORECASE)
 _IMPORTED_RE = re.compile(r"imported from countrytabs", re.IGNORECASE)
 
 
@@ -69,11 +68,8 @@ def is_chart_complete(chart_path: Path) -> bool:
         return True
     if "<<" in text and ">>" in text:
         return True
-    structure_match = re.search(r"\{comment:\s*Structure:\s*([^}]+)\}", text, re.IGNORECASE)
-    if structure_match and re.search(r"\d", structure_match.group(1)):
-        return True
     if "Imported from CountryTabs" not in text:
-        if _STRUCTURE_RE.search(text) or "{c:" in text:
+        if "{c:" in text:
             return True
     return False
 
@@ -99,7 +95,7 @@ def restructure_slug(
 
     chart_path = band_dir / "charts" / f"{slug}.chopro"
     if chart_path.exists() and is_chart_complete(chart_path) and not force:
-        return f"skip {slug}: chart marked complete (Structure comment)"
+        return f"skip {slug}: chart marked complete"
 
     source = sources.get(slug, {})
     tab_url = source.get("url")
@@ -127,7 +123,7 @@ def restructure_slug(
         key=song.key,
         source_key=source.get("source_key"),
         extra_comments=extra_comments,
-        add_structure_comment=True,
+        add_structure_comment=False,
     )
     chart_path.write_text(chordpro, encoding="utf-8")
     section_count = chordpro.count("{start_of_")

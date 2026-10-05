@@ -9,11 +9,11 @@ import yaml
 
 from music_gigs.chordpro import (
     chordpro_to_structured,
-    chart_structure_warnings,
     parse_chordpro,
     progression_hints_from_metadata,
     render_chordpro_html,
     section_outline_from_structured,
+    structure_form_from_structured,
 )
 from music_gigs.loader import load_band_config
 from music_gigs.slug import slugify
@@ -135,10 +135,9 @@ def build_gig_data(band_dir: Path, set_path: Path) -> dict:
                 "duration_seconds": duration,
                 "scroll_duration_seconds": scroll_duration,
                 "scroll_multiplier": scroll_multiplier,
-                "structure": parsed.metadata.get("structure", ""),
+                "structure": structure_form_from_structured(structured),
                 "sections": structured,
                 "outline": section_outline_from_structured(structured, progression_hints),
-                "chart_warnings": chart_structure_warnings(parsed),
                 "body_html": render_chordpro_html(parsed),
             }
             set_songs.append(song_obj)

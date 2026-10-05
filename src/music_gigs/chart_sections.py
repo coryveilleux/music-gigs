@@ -288,7 +288,9 @@ def structure_outline(sections: list[tuple[str, list[str]]]) -> str:
         "bridge": "B",
         "outro": "O",
         "solo": "S",
-        "prechorus": "P",
+        "prechorus": "PC",
+        "pre-chorus": "PC",
+        "pre_chorus": "PC",
         "tag": "T",
     }
     parts: list[str] = []
@@ -301,7 +303,7 @@ def structure_outline(sections: list[tuple[str, list[str]]]) -> str:
 def enrich_sections_metadata(
     sections: list[tuple[str, list[str]]],
     *,
-    add_structure_comment: bool = True,
+    add_structure_comment: bool = False,
 ) -> dict[str, Any]:
     outline = structure_outline(sections)
     return {

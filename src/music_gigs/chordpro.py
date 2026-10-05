@@ -5,6 +5,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+from music_gigs.chart_sections import structure_outline
 from music_gigs.chords import chord_to_nashville, transpose_chord
 
 
@@ -122,9 +123,7 @@ def parse_chordpro(text: str) -> ChordProSong:
                 continue
 
             if name == "comment":
-                structure_match = _STRUCTURE_COMMENT_RE.match(value)
-                if structure_match:
-                    song.metadata["structure"] = structure_match.group(1).strip()
+                if _STRUCTURE_COMMENT_RE.match(value):
                     continue
                 progression_match = _PROGRESSION_COMMENT_RE.match(value)
                 if progression_match:
@@ -342,6 +341,19 @@ def _compact_from_bar_notation(text: str) -> list[dict[str, Any]]:
     return _compact_repeated_measures(measures)
 
 
+def _should_pair_lyric_chord_lines(groups: list[list[str]]) -> bool:
+    if len(groups) < 2 or len(groups) % 2 != 0:
+        return False
+    if not all(len(group) >= 2 for group in groups):
+        return False
+    if all(len(group) == 2 for group in groups):
+        return True
+    lengths = {len(group) for group in groups}
+    if len(lengths) == 1 and next(iter(lengths)) >= 4:
+        return False
+    return True
+
+
 def _compact_from_lyric_line_pairs(
     chord_lines: list[list[dict[str, Any]]],
 ) -> list[dict[str, Any]] | None:
@@ -351,9 +363,7 @@ def _compact_from_lyric_line_pairs(
         for line in chord_lines
         if line
     ]
-    if len(groups) < 2 or len(groups) % 2 != 0:
-        return None
-    if not all(len(group) >= 2 for group in groups):
+    if not _should_pair_lyric_chord_lines(groups):
         return None
     pairs = [groups[index] + groups[index + 1] for index in range(0, len(groups), 2)]
     collapsed: list[dict[str, Any]] = []
@@ -646,6 +656,16 @@ def chordpro_to_structured(song: ChordProSong) -> list[dict[str, Any]]:
     return structured
 
 
+def structure_form_from_structured(structured: list[dict[str, Any]]) -> str:
+    """Compact form line (I V C …) from ChordPro section directives."""
+    sections = [
+        (section["type"], [])
+        for section in structured
+        if section["type"] not in {"comment", "tab", "abc"}
+    ]
+    return structure_outline(sections)
+
+
 _HINT_WORDS = 10
 
 
@@ -665,15 +685,6 @@ def progression_hints_from_metadata(metadata: dict[str, str]) -> dict[str, str]:
             section_key = key.removeprefix("progression_").lower().replace("-", "_")
             hints[section_key] = value
     return hints
-
-
-def chart_structure_warnings(song: ChordProSong) -> list[str]:
-    if song.metadata.get("structure"):
-        return []
-    title = song.metadata.get("title", "chart")
-    return [
-        f'{title}: no {{comment: Structure: ...}} hint — structure view uses best-guess chord detection'
-    ]
 
 
 def parse_progression_spec(text: str) -> dict[str, Any]:
@@ -812,6 +823,414 @@ def _detect_alternating_pair_pattern(rows: list[list[str]]) -> list[dict[str, An
     ]
 
 
+_STRUCTURE_CUE_LABELS: dict[str, str] = {
+    "STOP": "Stop",
+    "FULL BAND": "Full band",
+    "HOLD": "Hold",
+}
+
+
+def _normalize_cue_text(cue: str) -> str:
+    text = cue.strip()
+    if text.startswith("(") and text.endswith(")"):
+        text = text[1:-1].strip()
+    return re.sub(r"\s+", " ", text)
+
+
+def _structure_direction_label(cue: str) -> str:
+    normalized = _normalize_cue_text(cue).upper()
+    if normalized in _STRUCTURE_CUE_LABELS:
+        return _STRUCTURE_CUE_LABELS[normalized]
+    plain = _normalize_cue_text(cue)
+    if plain.isupper():
+        return plain.title()
+    return plain
+
+
+def _ordinal_word(n: int) -> str:
+    if 10 <= n % 100 <= 20:
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+    return f"{n}{suffix}"
+
+
+def _structure_note_for_cue(chord_names: list[str], chord_index: int, cue: str) -> str:
+    direction = _structure_direction_label(cue)
+    if not chord_names or chord_index < 0 or chord_index >= len(chord_names):
+        return direction
+    chord = chord_names[chord_index]
+    matches = [index for index, name in enumerate(chord_names) if name == chord]
+    if len(matches) == 1:
+        return f"{direction} on {chord}"
+    position = matches.index(chord_index)
+    if position == 0:
+        return f"{direction} on first {chord}"
+    if position == len(matches) - 1:
+        return f"{direction} on last {chord}"
+    return f"{direction} on {_ordinal_word(position + 1)} {chord}"
+
+
+def _chord_names_on_line(line: list[dict[str, Any]]) -> list[str]:
+    return [entry["chord"] for entry in line if entry.get("chord")]
+
+
+def _global_chord_index_in_span(
+    chord_lines: list[list[dict[str, Any]]],
+    line_index: int,
+    chord_index: int,
+    span_start: int,
+    span_end: int,
+) -> int:
+    cursor = 0
+    for line_i in range(span_start, span_end):
+        count = len(_chord_names_on_line(chord_lines[line_i]))
+        if line_i == line_index:
+            return cursor + chord_index
+        cursor += count
+    return 0
+
+
+def _cycles_with_inline_cues(
+    chord_lines: list[list[dict[str, Any]]],
+    span_start: int,
+    span_end: int,
+    lines_per_cycle: int,
+) -> set[int]:
+    cycles: set[int] = set()
+    for line_i in range(span_start, span_end):
+        if _inline_cues_on_line(chord_lines[line_i]):
+            cycles.add((line_i - span_start) // lines_per_cycle)
+    return cycles
+
+
+def _inline_cues_on_line(line: list[dict[str, Any]]) -> list[tuple[int, str]]:
+    """Chord-index and cue text for each inline direction on one lyric row."""
+    names = _chord_names_on_line(line)
+    events: list[tuple[int, str]] = []
+    chord_count = 0
+    pending_cue: str | None = None
+    for entry in line:
+        cue = _normalize_cue_text(entry.get("cue") or "")
+        chord = entry.get("chord") or ""
+        if chord:
+            if pending_cue:
+                events.append((chord_count, pending_cue))
+                pending_cue = None
+            if cue:
+                events.append((chord_count, cue))
+            chord_count += 1
+        elif cue:
+            if chord_count > 0:
+                events.append((chord_count - 1, cue))
+            else:
+                pending_cue = cue
+    if pending_cue and chord_count > 0:
+        events.append((chord_count - 1, pending_cue))
+    return events
+
+
+def _active_chord_line_indices(chord_lines: list[list[dict[str, Any]]]) -> list[int]:
+    return [
+        index
+        for index, line in enumerate(chord_lines)
+        if line and any(entry.get("chord") for entry in line)
+    ]
+
+
+def _line_span_for_chord_range(
+    chord_lines: list[list[dict[str, Any]]],
+    start_chord: int,
+    end_chord: int,
+) -> tuple[int, int]:
+    cursor = 0
+    first_line: int | None = None
+    last_exclusive = 0
+    for index, line in enumerate(chord_lines):
+        count = len(_chord_names_on_line(line))
+        if not count:
+            continue
+        line_start = cursor
+        line_end = cursor + count
+        if line_end > start_chord and first_line is None:
+            first_line = index
+        if line_start < end_chord:
+            last_exclusive = index + 1
+        cursor = line_end
+    if first_line is None:
+        return (0, len(chord_lines))
+    return (first_line, last_exclusive)
+
+
+def _compact_from_lyric_line_pairs_with_spans(
+    chord_lines: list[list[dict[str, Any]]],
+) -> list[dict[str, Any]] | None:
+    indexed = [
+        (index, _chord_names_on_line(line))
+        for index, line in enumerate(chord_lines)
+        if _chord_names_on_line(line)
+    ]
+    groups = [names for _, names in indexed]
+    if not _should_pair_lyric_chord_lines(groups):
+        return None
+
+    result: list[dict[str, Any]] = []
+    cursor = 0
+    while cursor < len(indexed):
+        first_idx, first = indexed[cursor]
+        second_idx, second = indexed[cursor + 1]
+        pair = first + second
+        line_start = first_idx
+        line_end = second_idx + 1
+        repeat = 1
+        scan = cursor + 2
+        while scan + 1 < len(indexed):
+            left_idx, left = indexed[scan]
+            right_idx, right = indexed[scan + 1]
+            if left + right != pair:
+                break
+            repeat += 1
+            line_end = right_idx + 1
+            scan += 2
+        result.append(
+            {
+                "chords": pair,
+                "repeat": repeat,
+                "line_start": line_start,
+                "line_end": line_end,
+            }
+        )
+        cursor = scan
+    return result
+
+
+def _compact_chord_rows_with_spans(
+    chord_lines: list[list[dict[str, Any]]],
+    chord_seq: list[str],
+    progression_override: str | None = None,
+    bar_texts: list[str] | None = None,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Compact lyric chords plus optional bar rows; lyric rows include line_start/line_end."""
+    bar_rows: list[dict[str, Any]] = []
+    if bar_texts:
+        for text in bar_texts:
+            bar_rows.extend(_compact_from_bar_notation(text))
+
+    line_count = len(chord_lines)
+    full_span = {"line_start": 0, "line_end": line_count}
+
+    if progression_override:
+        lyric_rows = [
+            {**row, **full_span}
+            for row in progression_to_compact_rows(parse_progression_spec(progression_override))
+        ]
+        return lyric_rows, bar_rows
+
+    if bar_rows and not chord_lines:
+        return [], bar_rows
+
+    paired = _compact_from_lyric_line_pairs_with_spans(chord_lines)
+    if paired:
+        return paired, bar_rows
+
+    rows: list[list[str]] = [_chord_names_on_line(line) for line in chord_lines if line]
+
+    if chord_seq:
+        detected = detect_repeating_progression(chord_seq)
+        if detected.get("source") == "detected":
+            pattern = detected.get("pattern") or []
+            repeats = detected.get("repeat") or 1
+            consumed = len(pattern) * repeats
+            lyric_rows: list[dict[str, Any]] = []
+            if pattern:
+                span = _line_span_for_chord_range(chord_lines, 0, consumed)
+                lyric_rows.append(
+                    {
+                        "chords": pattern,
+                        "repeat": repeats,
+                        "line_start": span[0],
+                        "line_end": span[1],
+                    }
+                )
+            tail = detected.get("tail") or []
+            if tail:
+                span = _line_span_for_chord_range(chord_lines, consumed, len(chord_seq))
+                lyric_rows.append(
+                    {
+                        "chords": tail,
+                        "repeat": 1,
+                        "line_start": span[0],
+                        "line_end": span[1],
+                    }
+                )
+            return lyric_rows, bar_rows
+
+    sparse = _compact_sparse_lyric_progression(rows, chord_seq)
+    if sparse:
+        return [{**row, **full_span} for row in sparse], bar_rows
+
+    if not rows and chord_seq:
+        detected = detect_repeating_progression(chord_seq)
+        lyric_rows = [
+            {**row, **full_span} for row in progression_to_compact_rows(detected)
+        ]
+        return lyric_rows, bar_rows
+
+    if not rows:
+        return [], bar_rows
+
+    alternating = _detect_alternating_pair_pattern(rows)
+    if alternating:
+        active = _active_chord_line_indices(chord_lines)
+        lyric_rows = []
+        for index, row in enumerate(alternating):
+            if index * 2 + 1 < len(active):
+                start = active[index * 2]
+                end = active[min(index * 2 + 2, len(active) - 1)] + 1
+            else:
+                start, end = full_span["line_start"], full_span["line_end"]
+            lyric_rows.append({**row, "line_start": start, "line_end": end})
+        return lyric_rows, bar_rows
+
+    indexed_rows = [
+        (index, names)
+        for index, line in enumerate(chord_lines)
+        if (names := _chord_names_on_line(line))
+    ]
+    collapsed: list[tuple[list[str], int, int, int]] = []
+    for line_index, row in indexed_rows:
+        if collapsed and collapsed[-1][0] == row:
+            collapsed[-1] = (
+                row,
+                collapsed[-1][1] + 1,
+                collapsed[-1][2],
+                line_index + 1,
+            )
+        else:
+            collapsed.append((row, 1, line_index, line_index + 1))
+
+    lyric_rows: list[dict[str, Any]] = []
+    for row, count, line_start, line_end in collapsed:
+        split_rows = _split_chord_row_for_display(row)
+        for idx, split in enumerate(split_rows):
+            repeat = count if idx == len(split_rows) - 1 else 1
+            lyric_rows.append(
+                {
+                    "chords": split,
+                    "repeat": repeat,
+                    "line_start": line_start,
+                    "line_end": line_end,
+                }
+            )
+    return lyric_rows, bar_rows
+
+
+def _append_cues_for_line_range(
+    flow: list[dict[str, Any]],
+    chord_lines: list[list[dict[str, Any]]],
+    cue_line_start: int,
+    cue_line_end: int,
+    pattern_span_start: int,
+    pattern_span_end: int,
+    pattern: list[str],
+    seen_notes: set[str],
+) -> None:
+    pattern_len = len(pattern)
+    if not pattern_len:
+        return
+    for line_index in range(cue_line_start, cue_line_end):
+        if line_index >= len(chord_lines):
+            continue
+        for chord_index, cue in _inline_cues_on_line(chord_lines[line_index]):
+            global_index = _global_chord_index_in_span(
+                chord_lines,
+                line_index,
+                chord_index,
+                pattern_span_start,
+                pattern_span_end,
+            )
+            pattern_index = global_index % pattern_len
+            note = _structure_note_for_cue(pattern, pattern_index, cue)
+            if note not in seen_notes:
+                seen_notes.add(note)
+                flow.append({"type": "note", "text": note})
+
+
+def _append_structure_chord_row_to_flow(
+    flow: list[dict[str, Any]],
+    chord_lines: list[list[dict[str, Any]]],
+    row: dict[str, Any],
+) -> None:
+    pattern = row.get("chords") or []
+    repeat = row.get("repeat") or 1
+    start = row.get("line_start", 0)
+    end = row.get("line_end", len(chord_lines))
+    line_count = max(end - start, 0)
+    seen_notes: set[str] = set()
+
+    lines_per_cycle = line_count // repeat if repeat and line_count % repeat == 0 else 0
+    cue_cycles = (
+        _cycles_with_inline_cues(chord_lines, start, end, lines_per_cycle)
+        if lines_per_cycle
+        else set()
+    )
+    split_cycles = repeat > 1 and lines_per_cycle > 0 and len(cue_cycles) >= 2
+
+    if split_cycles:
+        for cycle in range(repeat):
+            cycle_start = start + cycle * lines_per_cycle
+            cycle_end = cycle_start + lines_per_cycle
+            _append_cues_for_line_range(
+                flow,
+                chord_lines,
+                cycle_start,
+                cycle_end,
+                cycle_start,
+                cycle_end,
+                pattern,
+                seen_notes,
+            )
+            flow.append({"type": "chords", "chords": pattern, "repeat": 1})
+        return
+
+    _append_cues_for_line_range(
+        flow,
+        chord_lines,
+        start,
+        end,
+        start,
+        end,
+        pattern,
+        seen_notes,
+    )
+    flow.append({"type": "chords", "chords": pattern, "repeat": repeat})
+
+
+def _append_structure_chord_chunk(
+    flow: list[dict[str, Any]],
+    chord_lines: list[list[dict[str, Any]]],
+    chord_seq: list[str],
+    bar_texts: list[str] | None,
+    progression_override: str | None,
+) -> None:
+    lyric_rows, bar_rows = _compact_chord_rows_with_spans(
+        chord_lines,
+        chord_seq,
+        progression_override=progression_override,
+        bar_texts=bar_texts,
+    )
+    for row in lyric_rows:
+        _append_structure_chord_row_to_flow(flow, chord_lines, row)
+    for row in bar_rows:
+        flow.append(
+            {
+                "type": "chords",
+                "chords": row["chords"],
+                "repeat": row.get("repeat", 1),
+            }
+        )
+
+
 def compact_chord_rows(
     chord_lines: list[list[dict[str, Any]]],
     chord_seq: list[str],
@@ -819,58 +1238,15 @@ def compact_chord_rows(
     bar_texts: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     """Group chords into compact rows for structure view, collapsing repeated patterns."""
-    if progression_override:
-        return progression_to_compact_rows(parse_progression_spec(progression_override))
-
-    bar_rows: list[dict[str, Any]] = []
-    if bar_texts:
-        for text in bar_texts:
-            bar_rows.extend(_compact_from_bar_notation(text))
-
-    if bar_rows and not chord_lines:
-        return bar_rows
-
-    paired = _compact_from_lyric_line_pairs(chord_lines)
-    if paired:
-        return paired + bar_rows
-
-    rows: list[list[str]] = [
-        [entry["chord"] for entry in line] for line in chord_lines if line
-    ]
-
-    if chord_seq:
-        detected = detect_repeating_progression(chord_seq)
-        if detected.get("source") == "detected":
-            return progression_to_compact_rows(detected) + bar_rows
-
-    sparse = _compact_sparse_lyric_progression(rows, chord_seq)
-    if sparse:
-        return sparse + bar_rows
-
-    if not rows and chord_seq:
-        return progression_to_compact_rows(detect_repeating_progression(chord_seq)) + bar_rows
-
-    if not rows:
-        return bar_rows
-
-    alternating = _detect_alternating_pair_pattern(rows)
-    if alternating:
-        return alternating + bar_rows
-
-    collapsed: list[tuple[list[str], int]] = []
-    for row in rows:
-        if collapsed and collapsed[-1][0] == row:
-            collapsed[-1] = (row, collapsed[-1][1] + 1)
-        else:
-            collapsed.append((row, 1))
-
-    result: list[dict[str, Any]] = []
-    for row, count in collapsed:
-        split_rows = _split_chord_row_for_display(row)
-        for idx, split in enumerate(split_rows):
-            repeat = count if idx == len(split_rows) - 1 else 1
-            result.append({"chords": split, "repeat": repeat})
-    return result + bar_rows
+    lyric_rows, bar_rows = _compact_chord_rows_with_spans(
+        chord_lines,
+        chord_seq,
+        progression_override=progression_override,
+        bar_texts=bar_texts,
+    )
+    return [
+        {"chords": row["chords"], "repeat": row.get("repeat", 1)} for row in lyric_rows
+    ] + bar_rows
 
 
 def format_structure_chord_row(row: dict[str, Any]) -> str:
@@ -895,20 +1271,13 @@ def structure_flow_from_section(
         nonlocal chord_lines, chord_seq, bar_texts
         if not chord_lines and not bar_texts and not chord_seq:
             return
-        rows = compact_chord_rows(
+        _append_structure_chord_chunk(
+            flow,
             chord_lines,
             chord_seq,
-            progression_override=progression_override,
-            bar_texts=bar_texts or None,
+            bar_texts or None,
+            progression_override,
         )
-        for row in rows:
-            flow.append(
-                {
-                    "type": "chords",
-                    "chords": row["chords"],
-                    "repeat": row.get("repeat", 1),
-                }
-            )
         chord_lines = []
         chord_seq = []
         bar_texts = []

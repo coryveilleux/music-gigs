@@ -58,10 +58,6 @@ def main() -> None:
 
     output = args.output or (band_dir / "gigs" / f"{set_path.stem}.pdf")
     gig_data = build_gig_data(band_dir, set_path)
-    for song in gig_data["songs"]:
-        for warning in song.get("chart_warnings", []):
-            print(f"Warning: {warning}", file=sys.stderr)
-
     pdf_bytes = render_gig_pdf(gig_data, song_limit=args.limit)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(pdf_bytes)

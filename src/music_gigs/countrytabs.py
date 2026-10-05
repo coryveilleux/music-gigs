@@ -111,7 +111,7 @@ def lines_to_chordpro(
     source_url: str,
     transpose_semitones: int = 0,
     extra_comments: list[str] | None = None,
-    add_structure_comment: bool = True,
+    add_structure_comment: bool = False,
 ) -> str:
     from music_gigs.chart_sections import (
         cleanup_import_lines,
@@ -169,7 +169,7 @@ def import_tablature_to_chordpro(
     key: str,
     source_key: str | None = None,
     extra_comments: list[str] | None = None,
-    add_structure_comment: bool = True,
+    add_structure_comment: bool = False,
 ) -> str:
     page_html = fetch_tablature(url)
     pre_html = extract_pre_html(page_html)

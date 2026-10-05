@@ -126,7 +126,7 @@ Charts are imported from [CountryTabs](http://www.countrytabs.com/) into `.chopr
 uv run scripts/import_charts.py BailMoneyBand --all
 ```
 
-**2. Restructure** — re-fetch from CountryTabs, split into intro/verse/chorus/bridge, add a `{comment: Structure: ...}` hint, and strip tab-staff junk. Skips charts you've finished (no “Imported from CountryTabs” line, or harmonies added):
+**2. Restructure** — re-fetch from CountryTabs, split into intro/verse/chorus/bridge, and strip tab-staff junk. Skips charts you've finished (no “Imported from CountryTabs” line, or harmonies added):
 
 ```bash
 # All songs on a gig setlist (skips Buy Me a Boat and other finished charts)
@@ -202,7 +202,9 @@ Well, maybe [D]so, but it could [STOP] buy me a [A]boat
 My [Dm7 (play twice)]lyric line continues here
 ```
 
-`[STOP]` is plain text in brackets — Songbook Pro shows it above the lyric without breaking the line. `[Dm7 (play twice)]` stacks a chord and annotation at one spot. The `[*STOP]` / `[G*HOLD]` asterisk form still works if another app might misread bare `[STOP]` as a chord.
+`[STOP]` is plain text in brackets — Songbook Pro shows it above the lyric without breaking the line. `[Dm7 (play twice)]` stacks a chord and annotation at one spot. The `[*STOP]` / `[G*HOLD]` asterisk form still works if another app might misread bare `[STOP]` as a chord. Attach a direction to a chord with a space and parentheses, e.g. `[D (FULL BAND)]` or `[A (STOP)]` (not a second `[` — brackets always wrap one token).
+
+**Structure / PDF sidebar:** inline bracket cues are turned into italic notes placed just above the matching compact chord row — e.g. `[D (STOP)]` on the last `D` in a `D G D A (×2)` block becomes *Stop on last D*. Use `{c: ...}` only when the direction is not tied to a specific chord change.
 
 **ChordPro inline italic** (callout inside the lyric line):
 
@@ -257,10 +259,9 @@ Bar notation and chord-only lines are gig-book conventions; in other apps, `{c: 
 
 #### Song structure and chord progressions (portable hints)
 
-Structure view **auto-detects** repeating progressions from the chords in each section (e.g. Buy Me a Boat chorus → `D · G · D · A  (×2)`). When detection isn’t enough, add portable `{comment: ...}` hints at the top of the chart:
+The gig book **derives** the form line (`I V C …`) from `{start_of_…}` / `{end_of_…}` sections — you do not need a separate structure comment. Structure view **auto-detects** repeating progressions from the chords in each section (e.g. Buy Me a Boat chorus → `D · G · D · A  (×2)`). When detection isn’t enough, add portable progression hints:
 
 ```chordpro
-{comment: Structure: I V C V C B C}
 {comment: Progression verse: D G D A x2}
 {comment: Progression chorus: D G D A x2}
 ```
@@ -274,8 +275,6 @@ Or per-section override (shows as a `{c: ...}` line in other apps):
 ```
 
 Formats accepted: `D G D A x2`, `D-G-D-A ×2`, `D | G | D | A (x2)`.
-
-`build_gig_html.py` prints a **warning** when `{comment: Structure: ...}` is missing (still builds with best-guess detection).
 
 **Structure view** uses detected or hinted progressions, plus lyric anchors and section notes. Full chart view uses the same `.chopro` source.
 

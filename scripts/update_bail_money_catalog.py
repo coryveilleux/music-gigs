@@ -162,9 +162,6 @@ def _merge_chart_notes(charts_dir: Path, slug: str, notes: dict) -> None:
         return
     text = path.read_text(encoding="utf-8")
     additions: list[str] = []
-    structure = notes.get("structure")
-    if structure and f"{{comment: Structure:" not in text:
-        additions.append(f"{{comment: Structure: {structure}}}")
     for label, key in (("intro", "intro"), ("outro", "outro")):
         items = [item for item in notes.get(key, []) if item]
         if not items:

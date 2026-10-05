@@ -184,6 +184,74 @@ def test_more_than_my_hometown_sparse_sections():
     assert tag["chord_compact"] == [{"chords": ["G", "Am", "Em", "Cadd9", "G"], "repeat": 1}]
 
 
+def test_structure_form_from_sections():
+    from pathlib import Path
+
+    from music_gigs.chordpro import structure_form_from_structured
+
+    for slug, expected in (
+        ("buy-me-a-boat", "I V C V C B C O"),
+        ("boston", "C V C V PC C B C O"),
+        ("honky-tonk-man", "C V C S C V C B C"),
+    ):
+        chart = Path(f"BailMoneyBand/charts/{slug}.chopro").read_text(encoding="utf-8")
+        structured = chordpro_to_structured(parse_chordpro(chart))
+        assert structure_form_from_structured(structured) == expected
+
+
+def test_structure_flow_inline_chord_cues():
+    text = """{title: Test}
+{key: D}
+{start_of_chorus}
+[D] [G] [D] [A]
+[D] [G] [D (STOP)] [A]
+{end_of_chorus}
+"""
+    structured = chordpro_to_structured(parse_chordpro(text))
+    outline = section_outline_from_structured(structured, {})
+    flow = outline[0]["flow"]
+    assert flow == [
+        {"type": "note", "text": "Stop on last D"},
+        {"type": "chords", "chords": ["D", "G", "D", "A"], "repeat": 2},
+    ]
+
+    text2 = """{start_of_chorus}
+[D] [G] [D] [A]
+[D] [G] [D] [A]
+[D] [G] [D] [A]
+[D] [A] [G (STOP)] [A]
+{end_of_chorus}
+"""
+    structured2 = chordpro_to_structured(parse_chordpro(text2))
+    flow2 = section_outline_from_structured(structured2, {})[0]["flow"]
+    assert flow2[0] == {"type": "chords", "chords": ["D", "G", "D", "A"], "repeat": 3}
+    assert flow2[1] == {"type": "note", "text": "Stop on G"}
+    assert flow2[2] == {"type": "chords", "chords": ["D", "A", "G", "A"], "repeat": 1}
+
+
+def test_buy_me_a_boat_chorus_inline_cue_structure():
+    from pathlib import Path
+
+    text = Path("BailMoneyBand/charts/buy-me-a-boat.chopro").read_text()
+    structured = chordpro_to_structured(parse_chordpro(text))
+    outlines = section_outline_from_structured(structured, {})
+    chorus1 = next(s for s in outlines if s["type"] == "chorus" and s["number"] == 1)
+    chorus3 = next(s for s in outlines if s["type"] == "chorus" and s["number"] == 3)
+    assert chorus1["flow"] == [
+        {"type": "note", "text": "Full band on first D"},
+        {"type": "chords", "chords": ["D", "G", "D", "A"], "repeat": 1},
+        {"type": "note", "text": "Stop on A"},
+        {"type": "chords", "chords": ["D", "G", "D", "A"], "repeat": 1},
+    ]
+    assert chorus3["flow"] == [
+        {"type": "note", "text": "Stripped down"},
+        {"type": "chords", "chords": ["D", "G", "D", "A"], "repeat": 1},
+        {"type": "note", "text": "Full band on first D"},
+        {"type": "chords", "chords": ["D", "G", "D", "A", "D", "G"], "repeat": 1},
+        {"type": "chords", "chords": ["D", "G", "D", "A"], "repeat": 1},
+    ]
+
+
 def test_outline_start_end_exclude_performance_notes():
     text = """{title: Test}
 {key: D}

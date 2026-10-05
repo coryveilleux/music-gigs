@@ -63,7 +63,7 @@ def test_lines_to_chordpro_adds_structure_comment():
         key="G",
         source_url="http://example.com",
     )
-    assert "{comment: Structure:" in text
+    assert "{comment: Structure:" not in text
     assert "{start_of_verse}" in text
     assert "{start_of_chorus}" in text
 
